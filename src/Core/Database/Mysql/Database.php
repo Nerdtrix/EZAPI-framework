@@ -3,7 +3,10 @@
 
     class Database extends Mysql implements IDatabase
     {
-        public function getById(int $id){}
+        public function getById(int $id)
+        {
+            
+        }
 
         public function first(){}
 

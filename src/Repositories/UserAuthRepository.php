@@ -7,17 +7,42 @@
     class UserAuthRepository implements IUserAuthRepository
     {
         protected IDatabase $db;
-        private const COLUMN_NAME = "user";
+        private const COLL_NAME = "user";
 
         public function __construct(IDatabase $db)
         {
             $this->db = $db;
         }
 
+        //example 3
+        function findFirst2(string $identifier, string $key) : User
+        {
+            $query = "SELECT * FROM {self::COLL_NAME} WHERE x = ?";
+            $this->db->query($query);
 
+            return new user;
+        }
+       
+
+        //example 2
+        function findFirst1(string $identifier, string $key) : User
+        {
+            $this->db->select()->from(self::COLL_NAME)->where("%s= ?")->or()->bind()->limit(1)->offset(0)->order("DESC");
+
+            return new user;
+        }
+
+        //example 1
         function findFirst(string $identifier, string $key) : User
         {
-            return new User;
+            
+            
+            $this->db->select([
+                "where" => sprintf("%s= ?", key($array)),
+                "bind" => [current($array)]
+            ], self::COLL_NAME);
+
+            return new user;
         }
 
         /**

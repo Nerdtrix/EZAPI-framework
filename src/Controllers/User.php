@@ -20,23 +20,30 @@
         //example localhost:8080/User/index
 
 
-        //Call localhost:8080/user/ or localhost:8080/ or localhost:8080/user/index   to execute
+
+
+        /**
+         * @api route /
+         * @method get
+         * @return object
+         */
         public function index() : void
         {  
             print("Welcome to " . EZENV["APP_NAME"] . " Version " . EZENV["APP_VERSION"]);
         }
 
-        //Call localhost:8080/user/auth  to execute
+      
 
         /**
-         * 
+         * @api route /user/auth
+         * @method post
          * @param object $input {usernameOrEmail: string, password: string, rememeberMe: bool}
          * @return object
          * @throws ApiError
          */
         public function Login(object $input) : void
         { 
-            if(empty($input))
+            if(is_null($input))
             {
                 throw new ApiError("Invalid request body");
             }
@@ -50,14 +57,17 @@
             {
                 throw new ApiError("password or email is required");
             }
-
+           
             $response = $this->m_authService->Authenticate(
-                $input->usernameOrEmail,
-                $input->password,
-                $input->rememberMe ?? false
+                usernameOrEmail: $input->usernameOrEmail,
+                password: $input->password,
+                rememberMe: $input->rememberMe ?? false
             );
 
-            $this->request->response($response);
+            $this->request->response((object)[
+                "userId" => $response->id,
+                "username" => $response->username
+            ]);
         }
 
        

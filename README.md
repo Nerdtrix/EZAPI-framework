@@ -5,6 +5,11 @@
 - run the following command to ensure xdebug is correctly installed `php -v`. If you see the xdebug name there then you are good to go.
 - Once the xdebug has been correctly configure you can press F5 or go to run/start debugging to start debugging. 
 
+## PHPUnit debug
+- Press Ctrl + Shift + D
+- Select PHPUnit Debug
+- Press the Start button next to run or Press F5
+
 ## Start without debugging
 To to Terminal/Run Task/EZAPI server
 
