@@ -1,7 +1,7 @@
 <?php
   namespace Services;
-  use Core\Exceptions\ApiError;
   use Models\User;
+  use Core\Exceptions\ApiError;
   use Repositories\IUserAuthRepository;
   
     
@@ -28,15 +28,16 @@
         $this->m_user = $this->m_authRepository->getUserByUsername($usernameOrEmail);
       }
 
+      #User not found
       if(empty($this->m_user->id))
       {
         throw new ApiError("user_not_found");
       }
-
-      #User not found
+      
+      #Validate password
       if(!password_verify($password, $this->m_user->password))
       {
-        throw new ApiError("invalid_username_email_or_password");
+        throw new ApiError("invalid_username_or_password");
       }
 
       // if($this->m_user->status == "banned")

@@ -1,9 +1,9 @@
 <?php
     namespace Controllers;
-
     use Core\Router;
     use Services\{IAuthService};
     use Core\Exceptions\ApiError;
+
 
     class User extends Router
     {
@@ -14,12 +14,7 @@
             $this->m_authService = $authService;
 
             parent::__construct();
-        }
-
-        //Framework URL PROTOCOL terminology is domain/Class/Function or domain:port/Class name/Function name 
-        //example localhost:8080/User/index
-
-
+        }     
 
 
         /**
@@ -30,12 +25,11 @@
         public function index() : void
         {  
             $this->request->response((object)[
-                "greeting" => "hello world",
+                "greeting" => "Hello world",
                 "app_name" => EZENV["APP_NAME"],
                 "version" => EZENV["APP_VERSION"]
             ]);
         }
-
       
 
         /**
@@ -59,13 +53,13 @@
 
             if(empty($input->password))
             {
-                throw new ApiError("password or email is required");
+                throw new ApiError("password is required");
             }
            
             $response = $this->m_authService->Authenticate(
                 usernameOrEmail: $input->usernameOrEmail,
                 password: $input->password,
-                rememberMe: $input->rememberMe ?? false
+                rememberMe: (bool)$input->rememberMe ?? false
             );
 
             $this->request->response((object)[

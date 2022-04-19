@@ -6,14 +6,7 @@
 
     class Connection
     {
-        protected PDO $m_connection;
-
-         /**
-         * @method connect
-         * @throws PDOException
-         * Database connection.
-         */
-        public function connect() : PDO
+        public function __construct()
         {
             try 
             { 
@@ -27,7 +20,6 @@
                         CURRENT_TIMEZONE
                     )#set timezone to match the default framework timezone
                 ];
-
 
                return new PDO(sprintf(
                     "mysql:host=%s;dbname=%s", 

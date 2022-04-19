@@ -8,7 +8,7 @@
 
         public function __construct(Connection $connection) 
         {
-            $this->m_connection = $connection->connect();
+            $this->m_connection = $connection;
         }
 
         public function select(){}
@@ -26,6 +26,11 @@
         public function query(){}
 
         public function execute(){}
+
+        public function assign()
+        {
+
+        }
 
     }
 ?>
