@@ -29,7 +29,11 @@
          */
         public function index() : void
         {  
-            print("Welcome to " . EZENV["APP_NAME"] . " Version " . EZENV["APP_VERSION"]);
+            $this->request->response((object)[
+                "greeting" => "hello world",
+                "app_name" => EZENV["APP_NAME"],
+                "version" => EZENV["APP_VERSION"]
+            ]);
         }
 
       
@@ -69,6 +73,4 @@
                 "username" => $response->username
             ]);
         }
-
-       
     }

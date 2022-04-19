@@ -3,3 +3,4 @@
 notes
 composer.lock
 /vendor/
+*.cache

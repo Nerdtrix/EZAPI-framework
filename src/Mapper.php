@@ -1,7 +1,7 @@
 <?php
     namespace Src;
 
-    use Core\Database\Mysql\{IDatabase, Database};
+    use Core\Database\Mysql\{IMysql, Mysql};
     use Repositories\{IUserAuthRepository, UserAuthRepository};
 
     use Services\{
@@ -15,7 +15,7 @@
         public static $map = [
             IAuthService::class =>  AuthService::class,
             IUserAuthRepository::class => UserAuthRepository::class,
-            IDatabase::class => Database::class
+            IMysql::class => Mysql::class
         ];
 
     }

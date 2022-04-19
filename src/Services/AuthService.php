@@ -14,18 +14,27 @@
     {
       $this->m_authRepository = $authRepository;
     }
-
     
     public function authenticate(string $usernameOrEmail, string $password, bool $rememberMe) : object
     {
-      #Check whether the user entered a valid email otherwise treat it as an username
-      $identifier = filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL) ? "email" : "username";
-      
-      #Attempt to find the user in the database with the username or email provided
-      $this->m_user = $this->m_authRepository->findFirst($identifier, $usernameOrEmail);     
+
+      #Find by email if provided a valid email
+      if(filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL))
+      {
+        $this->m_user = $this->m_authRepository->getUserByEmail($usernameOrEmail);
+      }
+      else
+      {
+        $this->m_user = $this->m_authRepository->getUserByUsername($usernameOrEmail);
+      }
+
+      if(empty($this->m_user->id))
+      {
+        throw new ApiError("user_not_found");
+      }
 
       #User not found
-      if(empty($this->m_user->id) || !password_verify($password, $this->m_user->password))
+      if(!password_verify($password, $this->m_user->password))
       {
         throw new ApiError("invalid_username_email_or_password");
       }
