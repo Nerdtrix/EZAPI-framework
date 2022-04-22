@@ -59,7 +59,7 @@
             $response = $this->m_authService->Authenticate(
                 usernameOrEmail: $input->usernameOrEmail,
                 password: $input->password,
-                rememberMe: (bool)$input->rememberMe ?? false
+                rememberMe: $input->rememberMe ?? false
             );
 
             $this->request->response((object)[

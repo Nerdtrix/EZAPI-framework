@@ -1,10 +1,10 @@
 <?php
     namespace Repositories;
-    use Models\User;
+    use Models\UserAuthentication;
 
     interface IUserAuthRepository
     {
-        function getUserByUsername(string $username) : ?User;
-        function getUserByEmail(string $email) : ?User;
+        function getUserByUsername(string $username) : UserAuthentication;
+        function getUserByEmail(string $email) : UserAuthentication;
     }
 ?>

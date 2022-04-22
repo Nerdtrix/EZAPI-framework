@@ -1,38 +1,50 @@
 <?php
     namespace Repositories;
-    use Exception;
-    use PDO;
-    use Core\Database\Mysql\{Connection, IMysql};
-    use Models\User;
+    use Core\Database\Mysql\{IMysql, Mysql};
+    use Models\UserAuthentication;
 
 
     class UserAuthRepository implements IUserAuthRepository
     {
-        protected PDO $db;
-        private const COLL_NAME = "user";
+        private Mysql $m_db;
+        private string $table = "user";
+        
 
-        public function __construct(Connection $db)
+        public function __construct(IMysql $mySql)
         {
-            $this->db = $db;
+            $this->m_db = $mySql;
         }
 
 
-        public function getUserByEmail(string $email): User
+        /**
+         * @param string email
+         * @return UserAuthentication
+         */
+        public function getUserByEmail(string $email): UserAuthentication
         {
-            $query = "SELECT * FROM ${self::COLL_NAME} WHERE email = ? LIMIT 1 ORDER BY id DESC";
+            $query = "SELECT * FROM {$this->table} WHERE email = ? ORDER BY email DESC LIMIT 1"; 
 
-            $stmt = $this->db->prepare($query);
-            $stmt->bindValue(1, $email);
-            $stmt->execute();
-           
-            $user = $stmt->fetch(PDO::FETCH_CLASS, User::class);
-
-            return $user;
+            return $this->m_db->execute(
+                query: $query,
+                bind: [$email],
+                model: UserAuthentication::class
+            );
         }
 
-        public function getUserByUsername(string $username): User
+
+        /**
+         * @param string username
+         * @return UserAuthentication
+         */
+        public function getUserByUsername(string $username): UserAuthentication
         {
-            throw new Exception("not implemented");
+            $query = "SELECT * FROM {$this->table} WHERE username = ? ORDER BY username DESC LIMIT 1"; 
+
+            return $this->m_db->execute(
+                query: $query,
+                bind: [$username],
+                model: UserAuthentication::class
+            );
         }
     }
 ?>

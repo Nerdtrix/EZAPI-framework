@@ -6,7 +6,7 @@
 
     class Connection
     {
-        public function __construct()
+        public function start() : PDO
         {
             try 
             { 
