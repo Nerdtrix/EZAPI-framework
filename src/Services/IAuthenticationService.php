@@ -1,7 +1,7 @@
 <?php
     namespace Services;
 
-    interface IAuthService
+    interface IAuthenticationService
     {
         public function authenticate(string $usernameOrEmail, string $password, bool $rememberMe) : object;
     }

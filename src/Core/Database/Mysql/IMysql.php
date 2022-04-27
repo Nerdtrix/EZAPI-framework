@@ -3,6 +3,8 @@
 
     interface IMysql
     {
-        function execute(string $query, array $bind, string $parentClass) : object;
+        function select(string $query, array $bind, string $model, string $fetchMode = \PDO::FETCH_OBJ) : object;
+
+        function insert(string $query, array $bind) : int;
     }
 ?>

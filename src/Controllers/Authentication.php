@@ -1,15 +1,15 @@
 <?php
     namespace Controllers;
     use Core\Router;
-    use Services\{IAuthService};
+    use Services\{IAuthenticationService};
     use Core\Exceptions\ApiError;
 
 
-    class User extends Router
+    class Authentication extends Router
     {
-        protected IAuthService $m_authService;
+        protected IAuthenticationService $m_authService;
 
-        public function __construct(IAuthService $authService)
+        public function __construct(IAuthenticationService $authService)
         {
             $this->m_authService = $authService;
 
@@ -55,8 +55,8 @@
             {
                 throw new ApiError("password is required");
             }
-           
-            $response = $this->m_authService->Authenticate(
+
+            $response = $this->m_authService->authenticate(
                 usernameOrEmail: $input->usernameOrEmail,
                 password: $input->password,
                 rememberMe: $input->rememberMe ?? false

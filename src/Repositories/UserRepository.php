@@ -1,12 +1,12 @@
 <?php
     namespace Repositories;
-    use Core\Database\Mysql\{IMysql, Mysql};
-    use Models\User;
+    use Core\Database\Mysql\IMysql;
+    use Models\UserModel;
 
 
     class UserRepository implements IUserRepository
     {
-        private Mysql $m_db;
+        private IMysql $m_db;
         private string $table = "user";
         
 
@@ -16,17 +16,15 @@
         }
 
         /**
-         * @param string email
-         * @return UserAuthentication
+         * @param int userId
+         * @return UserModel
          */
-        public function getById(int $userId): User
+        public function getById(int $userId): UserModel
         {
-            $query = "SELECT * FROM {$this->table} WHERE id = ? ORDER BY id DESC LIMIT 1"; 
-
-            return $this->m_db->execute(
-                query: $query,
+            return $this->m_db->select(
+                query: "SELECT * FROM {$this->table} WHERE id = ? ORDER BY id ASC LIMIT 1",
                 bind: [$userId],
-                model: UserAuthentication::class
+                model: UserModel::class
             );
         }
 

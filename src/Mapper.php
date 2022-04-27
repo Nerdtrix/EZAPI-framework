@@ -1,21 +1,23 @@
 <?php
     namespace Src;
 
+    use Services\{IAuthenticationService, AuthenticationService};
+    use Repositories\{IUserRepository, UserRepository, IUserAuthenticationRepository, UserAuthenticationRepository, IDevicesRepository, DevicesRepository};
     use Core\Database\Mysql\{IMysql, Mysql};
-    use Repositories\{IUserAuthRepository, UserAuthRepository};
-
-    use Services\{
-        IAuthService,
-        AuthService
-    };
-
 
     class Mapper
     {
         public static $map = [
-            IAuthService::class =>  AuthService::class,
-            IUserAuthRepository::class => UserAuthRepository::class,
-            IMysql::class => Mysql::class
+            IAuthenticationService::class =>  AuthenticationService::class,
+
+            IUserRepository::class => UserRepository::class,
+            IUserAuthenticationRepository::class => UserAuthenticationRepository::class,
+            IDevicesRepository::class => DevicesRepository::class,
+
+            
+            IMysql::class => Mysql::class,
+
+            
         ];
 
     }
