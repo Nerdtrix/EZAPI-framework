@@ -59,12 +59,14 @@
             $response = $this->m_authService->authenticate(
                 usernameOrEmail: $input->usernameOrEmail,
                 password: $input->password,
+                otp: $input->otp ?? null,
                 rememberMe: $input->rememberMe ?? false
             );
 
-            $this->request->response((object)[
-                "userId" => $response->id,
-                "username" => $response->username
-            ]);
+            $this->request->response($response);
         }
+
+        public function logout() : void {}
+
+        public function extend() : void {}
     }

@@ -1,9 +1,10 @@
 <?php
     namespace Src;
 
-    use Services\{IAuthenticationService, AuthenticationService};
+    use Services\{IAuthenticationService, AuthenticationService, IWeb2FAService, Web2FAService, DevicesService, IDevicesService};
     use Repositories\{IUserRepository, UserRepository, IUserAuthenticationRepository, UserAuthenticationRepository, IDevicesRepository, DevicesRepository};
     use Core\Database\Mysql\{IMysql, Mysql};
+    use Core\{ICookie, Cookie, IHelper, Helper};
 
     class Mapper
     {
@@ -14,6 +15,10 @@
             IUserAuthenticationRepository::class => UserAuthenticationRepository::class,
             IDevicesRepository::class => DevicesRepository::class,
 
+            IWeb2FAService::class => Web2FAService::class,
+            IDevicesService::class => DevicesService::class,
+            ICookie::class => Cookie::class,
+            IHelper::class => Helper::class,
             
             IMysql::class => Mysql::class,
 

@@ -1,10 +1,8 @@
 <?php
   namespace Services;
-  use \stdClass;
   use Core\Exceptions\ApiError;
-  use Core\Helper;
   use Models\{UserModel, UserAuthenticationModel};
-  use Repositories\{IDevicesRepository, IUserAuthenticationRepository, IUserRepository};
+  use Repositories\{IUserAuthenticationRepository, IUserRepository};
   
     
   class AuthenticationService implements IAuthenticationService
@@ -12,24 +10,28 @@
     #Repositories
     private IUserAuthenticationRepository $m_authRepository;
     private IUserRepository $m_userRepository;
-    private IDevicesRepository $m_devicesRepository;
     
     #Models
     private UserAuthenticationModel $m_userAuthModel;
     private UserModel $m_userModel;
-    private stdClass $m_devicesModel;
+
+    #service
+    private IDevicesService $m_deviceService;
+    private IWeb2FAService $m_web2FaService;
     
   
     #Constructor
     public function __construct(
       IUserAuthenticationRepository $authRepository, 
-      IUserRepository $userRepository, 
-      IDevicesRepository $devicesRepository
+      IUserRepository $userRepository,
+      IDevicesService $deviceService,
+      IWeb2FAService $web2faService
     )
     {
       $this->m_authRepository = $authRepository;
       $this->m_userRepository = $userRepository;
-      $this->m_devicesRepository = $devicesRepository;
+      $this->m_deviceService = $deviceService;
+      $this->m_web2FaService = $web2faService;
     }
     
 
@@ -37,11 +39,12 @@
     /**
      * @param string usernameOrEmail
      * @param string password
+     * @param string otp
      * @param bool rememberMe
      * @return object
      * @throws ApiError
      */
-    public function authenticate(string $usernameOrEmail, string $password, bool $rememberMe) : object
+    public function authenticate(string $usernameOrEmail, string $password, ?string $otp, bool $rememberMe) : object
     {
 
       #Find by email if provided a valid email
@@ -66,42 +69,53 @@
         throw new ApiError("invalid_username_or_password");
       }
 
+      #Check if the account is banned
       if($this->m_userAuthModel->status == "banned")
       {
         throw new ApiError ("account_banned");
       }
 
+      #Check if the account is inactive
       if($this->m_userAuthModel->status == "inactive")
       {
         throw new ApiError ("account_inactive");
       }
 
-      #find devices attached to the user
-      $this->m_devicesModel = $this->m_devicesRepository->getDevicesByUserId(userId: $this->m_userAuthModel->id);
+      $isNewDevice = $this->m_deviceService->isNewDevice();
 
-      if(count((array)$this->m_devicesModel) > 0)
+      if($isNewDevice && $rememberMe || $isNewDevice && $this->m_userAuthModel->isTwoFactorAuth)
       {
-        $ip = (new Helper)->publicIP();
-        //string deviceName = helper::getDeviceName();
-        //match both with saved devices
+        if(is_null($otp))
+        {
+          #Send a new OTP to the email address
+          if($this->m_web2FaService->sendOtpEmail(email: $this->m_userAuthModel->email))
+          {
+            throw new ApiError ("a_new_otp_was_sent");
+          }
 
-        //if not match 2 auth required
+          throw new ApiError ("unable_to_send_otp");
+        }
+      }
 
-        //if remember device save new device into the DB
-
-        //skip 2 auth on saved devices when enabled
-
-        //signed in from unknown device. 2 factor asked
-
-        //send email on new device
-
-        //send token on 2 auth
-      } 
+      if(!is_null($otp))
+      {
+        $this->m_web2FaService->validateOTPToken(otp: $otp);
+      }
 
 
-      
+      if($isNewDevice)
+      {
+        #save device
+        $this->m_deviceService->addNewDevice(userId: $this->m_userAuthModel->id);
 
-      //save session
+        #send new device email
+        $this->m_web2FaService->sendNewDeviceDetected(email: $this->m_userAuthModel->email);
+      }
+
+
+      //todo save session
+
+
 
       $this->m_userModel = $this->m_userRepository->getById(userId: $this->m_userAuthModel->id);
 

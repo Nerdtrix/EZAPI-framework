@@ -2,7 +2,7 @@
     namespace Core;
 
 
-    class Helper
+    class Helper implements IHelper
     {
         /**
          * @method publicIP
@@ -59,5 +59,13 @@
             }
 
             return $realIP;
+        }
+
+
+        public function randomToken()   : string
+        {
+            $randBuff = openssl_random_pseudo_bytes(128);
+            
+            return base64_encode($randBuff);
         }
     }
