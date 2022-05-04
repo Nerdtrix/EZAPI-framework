@@ -59,11 +59,16 @@
             $response = $this->m_authService->authenticate(
                 usernameOrEmail: $input->usernameOrEmail,
                 password: $input->password,
-                otp: $input->otp ?? null,
                 rememberMe: $input->rememberMe ?? false
             );
 
             $this->request->response($response);
+        }
+
+
+        public function otpRequest(object $input) : void
+        {
+            
         }
 
         public function logout() : void {}

@@ -1,13 +1,11 @@
 <?php
     namespace Models;
 
-    class DevicesModel
+    class SessionModel
     {
         public int $id;
         public int $userId;
-        public string $ipAddress;
-        public string $deviceName;
-        public string $cookieIdentifier;
+        public string $token;
         public string $createdAt;
         public string $updatedAt;
         public string $expiresAt;      

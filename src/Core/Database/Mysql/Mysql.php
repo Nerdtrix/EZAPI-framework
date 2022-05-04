@@ -1,18 +1,24 @@
 <?php
     namespace Core\Database\Mysql;
-
-    use Exception;
     use \PDO;
+    use \PDOException;
+    use \Exception;
+    use Core\Exceptions\Error;
+    
 
     class Mysql implements IMysql
     {
         protected PDO $m_db;
-        protected  string $query = "";
 
-        public function __construct(Connection $connection) 
+        public const DATE_FORMAT = "Y-m-d";
+        public const DATE_TIME_FORMAT = "Y-m-d H:i:s";
+        
+
+        public function __construct() 
         {
-            $this->m_db = $connection->start();
+            $this->connect();
         }
+
         
         /**
          * @param string query
@@ -93,6 +99,13 @@
             return (object)$data;
         }
 
+
+        /**
+         * @param string query
+         * @param array bind
+         * @return int
+         * @throws Exceptions
+         */
         public function insert(string $query, array $bind) : int
         {
             $stmt = $this->m_db->prepare($query);
@@ -111,6 +124,12 @@
         }
 
 
+        /**
+         * @param string query
+         * @param array bind
+         * @return bool
+         * @throws Exceptions
+         */
         public function update(string $query, array $bind) : bool
         {
             #Prepare
@@ -131,7 +150,12 @@
         }
 
 
-
+        /**
+         * @param string query
+         * @param array bind
+         * @return bool
+         * @throws Exceptions
+         */
         public function delete(string $query, array $bind) : bool
         {
             #Prepare
@@ -152,15 +176,55 @@
         }
 
 
+        /**
+         * @return PDO
+         */
         public function db() : PDO
         {
             return $this->m_db;
         }
 
-        public function lastInsertId() : ?int
+
+        /**
+         * @return int
+         */
+        public function lastInsertId() : int
         {
             return $this->m_db->lastInsertId();
         }
 
+
+        /**
+         * Create a PDO database connection.
+         */
+        private function connect() : void 
+        {
+            try 
+            { 
+                $config = [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_CASE => PDO::CASE_NATURAL,
+                    PDO::ATTR_ORACLE_NULLS => PDO::NULL_EMPTY_STRING,
+                    PDO::MYSQL_ATTR_INIT_COMMAND => sprintf(
+                        "SET NAMES %s;SET time_zone ='%s'", 
+                        "utf8", 
+                        CURRENT_TIMEZONE
+                    )#set timezone to match the default framework timezone
+                ];
+
+                $this->m_db = new PDO(sprintf(
+                    "mysql:host=%s;dbname=%s", 
+                    EZENV['DB_HOST'], 
+                    EZENV['DB_NAME']),  
+                    EZENV['DB_USER'], 
+                    EZENV['DB_PASSWORD'],
+                    $config
+                );
+            }
+            catch(PDOException $ex)
+            {
+                Error::handler($ex);
+            }
+        }
     }
 ?>

@@ -62,10 +62,19 @@
         }
 
 
-        public function randomToken()   : string
+         /**
+         * @param int length
+         * @return int 
+         */
+        public function randomNumber(int $length) : int
         {
-            $randBuff = openssl_random_pseudo_bytes(128);
-            
-            return base64_encode($randBuff);
+            $result = "";
+
+            for($i = 0; $i < (int) $length; $i++) 
+            {
+                $result .= mt_rand(0, 9);
+            }
+
+            return (int)$result;
         }
     }

@@ -18,6 +18,7 @@
     #service
     private IDevicesService $m_deviceService;
     private IWeb2FAService $m_web2FaService;
+    private ISessionService $m_sessionService;
     
   
     #Constructor
@@ -25,13 +26,15 @@
       IUserAuthenticationRepository $authRepository, 
       IUserRepository $userRepository,
       IDevicesService $deviceService,
-      IWeb2FAService $web2faService
+      IWeb2FAService $web2faService,
+      ISessionService $sessionService
     )
     {
       $this->m_authRepository = $authRepository;
       $this->m_userRepository = $userRepository;
       $this->m_deviceService = $deviceService;
       $this->m_web2FaService = $web2faService;
+      $this->m_sessionService = $sessionService;
     }
     
 
@@ -39,12 +42,11 @@
     /**
      * @param string usernameOrEmail
      * @param string password
-     * @param string otp
      * @param bool rememberMe
      * @return object
      * @throws ApiError
      */
-    public function authenticate(string $usernameOrEmail, string $password, ?string $otp, bool $rememberMe) : object
+    public function authenticate(string $usernameOrEmail, string $password, bool $rememberMe) : object
     {
 
       #Find by email if provided a valid email
@@ -83,44 +85,41 @@
 
       $isNewDevice = $this->m_deviceService->isNewDevice();
 
-      if($isNewDevice && $rememberMe || $isNewDevice && $this->m_userAuthModel->isTwoFactorAuth)
+      if($isNewDevice || $rememberMe && $this->m_userAuthModel->isTwoFactorAuth)
       {
-        if(is_null($otp))
+        #Send a new OTP to the email address
+        if($this->m_web2FaService->createOtpSessionToken(userId: $this->m_userAuthModel->id))
         {
-          #Send a new OTP to the email address
-          if($this->m_web2FaService->sendOtpEmail(email: $this->m_userAuthModel->email))
-          {
-            throw new ApiError ("a_new_otp_was_sent");
-          }
-
-          throw new ApiError ("unable_to_send_otp");
+          throw new ApiError ("otp_validation_required");
         }
-      }
 
-      if(!is_null($otp))
-      {
-        $this->m_web2FaService->validateOTPToken(otp: $otp);
+        throw new ApiError ("unable_to_create_OTP_session");
       }
-
 
       if($isNewDevice)
       {
-        #save device
-        $this->m_deviceService->addNewDevice(userId: $this->m_userAuthModel->id);
+        if($rememberMe)
+        {
+          #save device
+          $this->m_deviceService->addNewDevice(userId: $this->m_userAuthModel->id);
+        }
 
         #send new device email
-        $this->m_web2FaService->sendNewDeviceDetected(email: $this->m_userAuthModel->email);
+        $this->m_deviceService->sendNewDeviceDetectedEmail(email: $this->m_userAuthModel->email);
       }
 
+      #Create session
+      if($this->m_sessionService->create(
+        userId: $this->m_userAuthModel->id,
+        rememberMe: $rememberMe
+      ))
+      {
+        $this->m_userModel = $this->m_userRepository->getById(userId: $this->m_userAuthModel->id);
 
-      //todo save session
-
-
-
-      $this->m_userModel = $this->m_userRepository->getById(userId: $this->m_userAuthModel->id);
-
-
-      return $this->m_userModel;
+        return $this->m_userModel;
+      }
+      
+      throw new ApiError ("unable_to_authenticate");
     }
 
    

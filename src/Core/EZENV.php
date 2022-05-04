@@ -81,7 +81,7 @@
           
                     if ($value === false) 
                     {
-                        return "Invalid env key";
+                        return $key;
                     }
           
                     return $value;

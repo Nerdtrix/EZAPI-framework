@@ -2,9 +2,9 @@
     namespace Services;
     use \stdClass;
     use Core\Exceptions\ApiError;
-    use Core\{IHelper, ICookie};
-use Exception;
-use Models\DevicesModel;
+    use Core\{IHelper, ICookie, ICrypto};
+    use Exception;
+    use Models\DevicesModel;
     use Repositories\{IDevicesRepository};
   
     
@@ -13,11 +13,14 @@ use Models\DevicesModel;
     #Repositories
     private IDevicesRepository $m_devicesRepository;
 
+    private $m_email;
+
 
 
     #Core
     private ICookie $m_cookie;
     private IHelper $m_helper;
+    private ICrypto $m_crypto;
     
     #constant
     private const COOKIE_NAME = "device_token";
@@ -27,11 +30,12 @@ use Models\DevicesModel;
     
   
     #Constructor
-    public function __construct(IDevicesRepository $devicesRepository, ICookie $cookie, IHelper $helper)
+    public function __construct(IDevicesRepository $devicesRepository, ICookie $cookie, IHelper $helper, ICrypto $crypto)
     {
       $this->m_devicesRepository = $devicesRepository;
       $this->m_cookie = $cookie;
       $this->m_helper = $helper;
+      $this->m_crypto = $crypto;
     }
     
 
@@ -67,7 +71,7 @@ use Models\DevicesModel;
 
     public function addNewDevice(int $userId) : void
     {
-        $randomHash = $this->m_helper->randomToken();
+        $randomHash = $this->m_crypto->randomToken();
 
         $deviceName = "";
 
@@ -85,6 +89,15 @@ use Models\DevicesModel;
             deviceName: $deviceName, 
             cookieIdentifier: $randomHash
         );
+    }
+
+    public function sendNewDeviceDetectedEmail(string $email) : void
+    {
+        // $this->m_email->send(
+        //     email: $email,
+        //     subject: "A new device has been detected!",
+        //     body: ""
+        // );
     }
 
   }

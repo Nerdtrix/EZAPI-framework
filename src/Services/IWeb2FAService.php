@@ -3,8 +3,8 @@
 
     interface IWeb2FAService
     {
-        function validateOTPToken(string $otp): bool;
+        function validateOTPToken(int $otp): bool;
         function sendOtpEmail(string $email) : bool;
-        function sendNewDeviceDetected(string $email) : void;
+        function createOtpSessionToken(int $userId) : bool;
     }
 ?>

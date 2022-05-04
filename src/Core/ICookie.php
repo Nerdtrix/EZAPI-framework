@@ -13,7 +13,7 @@
             bool $httpOnly = true ) : bool;
 
 
-        function get(string $name) : string;
+        function get(string $name) : ?string;
 
         function exists(string $name) : bool;
 

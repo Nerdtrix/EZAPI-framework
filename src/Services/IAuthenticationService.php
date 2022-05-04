@@ -3,6 +3,6 @@
 
     interface IAuthenticationService
     {
-        function authenticate(string $usernameOrEmail, string $password, string $otp, bool $rememberMe) : object;
+        function authenticate(string $usernameOrEmail, string $password, bool $rememberMe) : object;
     }
 ?>

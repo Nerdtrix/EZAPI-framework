@@ -5,7 +5,6 @@
     {
         function publicIP() : string;
 
-        function randomToken()   : string;
-
+        function randomNumber(int $length) : int;
     }
 ?>
