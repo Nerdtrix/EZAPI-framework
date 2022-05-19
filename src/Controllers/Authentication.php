@@ -9,6 +9,7 @@
     {
         protected IAuthenticationService $m_authService;
 
+
         public function __construct(IAuthenticationService $authService)
         {
             $this->m_authService = $authService;
@@ -31,9 +32,9 @@
             ]);
         }
       
-
+        
         /**
-         * @api route /user/auth
+         * @api route /authentication/Login
          * @method post
          * @param object $input {usernameOrEmail: string, password: string, rememeberMe: bool}
          * @return object

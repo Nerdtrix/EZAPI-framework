@@ -27,8 +27,13 @@ use Core\Ihelper;
     }
 
 
+    /**
+     * @param int otp
+     * @return bool
+     */
     public function validateOTPToken(int $otp): bool
     {
+        #Find record
         $this->m_web2FAModel = $this->m_web2FaRepository->getByOtpId(token: $otp);
 
         if(empty($this->m_web2FAModel->id))
@@ -36,16 +41,27 @@ use Core\Ihelper;
             throw new ApiError("invalid_OTP");
         }
 
+        $timestamp = CURRENT_TIME + (self::OTP_EXPIRATION_MINUTES * 60);
+        $expirationTime = date(DATE_FORMAT, $timestamp);
 
-        //todo
+        #Validate time
+        if(strtotime($expirationTime) > strtotime(CURRENT_TIME))
+        {
+            throw new ApiError("OTP_expired");
+        }
 
-        //validate time
+        #Validate and delete
+        if($this->m_web2FAModel->token == $otp)
+        {
+            #delete token
+            $this->m_web2FaRepository->deleteByOtpId(token: $otp);
 
+            #Validated
+            return true;
+        }
 
-        //delete
-
-        
-        return true;
+        #Invalid
+        return false;
     }
 
     public function sendOtpEmail(string $email) : bool

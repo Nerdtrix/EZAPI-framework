@@ -3,11 +3,11 @@
 
     interface ISessionRepository
     {
-        function listByUserId(int $userId) : \stdClass;
+        function listByUserId(int $userId) : object;
 
         function getBySessionToken(string $token): \Models\SessionModel;
 
-        function getByUserId(int $userId): \Models\SessionModel;
+        function getByUserId(int $userId, int $deviceId): \Models\SessionModel;
 
         function deleteById(int $sessionId): bool;
 
@@ -17,6 +17,6 @@
 
         function deleteByToken(string $token): bool;
 
-        function create(int $userId, string $token, int $expiresAt) : bool;
+        function create(int $userId, int $deviceId, string $token, string $expiresAt) : bool;
     }
 ?>

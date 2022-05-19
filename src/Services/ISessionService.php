@@ -3,7 +3,7 @@
 
     interface ISessionService
     {
-        function create(int $userId, bool $rememberMe = false) : bool;
+        function create(int $userId, bool $rememberMe) : bool;
 
         function isValid() : bool;
 

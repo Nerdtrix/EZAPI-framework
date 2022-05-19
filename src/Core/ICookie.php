@@ -6,7 +6,7 @@
         function set(
             string $name,
             string $value,
-            int $cookieExpiration, 
+            string $cookieExpiration, 
             string $path = "/", 
             string $domain = "", 
             bool $secure = false, 

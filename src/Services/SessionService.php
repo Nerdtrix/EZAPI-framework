@@ -1,9 +1,11 @@
 <?php
     namespace Services;
-    use Core\{ICookie, ICrypto};
+    use Core\{EZENV, ICookie, ICrypto};
+    use Core\Exceptions\ApiError;
     use Exception;
     use Models\SessionModel;
     use Repositories\ISessionRepository;
+    
 
   class SessionService implements ISessionService
   {
@@ -16,38 +18,68 @@
 
         private SessionModel $m_sessionModel;
         
+        private IDevicesService $m_deviceService;
+
         #constant
-        private const USER_SESSION_NAME = "DNPMYRJZJENXA0BQGA5Q";
+        private const USER_SESSION_NAME = "EZAPI_DNPMYRJZJENXA0BQGA5Q";
         private const USER_SESSION_EXPIRY = 20; #20 minutes
 
         
     
         #Constructor
-        public function __construct(ICookie $cookie, ICrypto $crypto, ISessionRepository $sessionRepository)
+        public function __construct(ICookie $cookie, ICrypto $crypto, ISessionRepository $sessionRepository, IDevicesService $deviceService)
         {
             $this->m_cookie = $cookie;
             $this->m_crypto = $crypto;
             $this->m_sessionRepository = $sessionRepository;
+
+            $this->m_deviceService = $deviceService;
+            
         }
 
 
-      public function create(int $userId, bool $rememberMe = false) : bool
-      {
-          #Session random hash
-          $sessionToken = $this->m_crypto->randomToken();
-      
-          $sessionEnd = 0;
+        public function create(int $userId, bool $rememberMe) : bool
+        {
+            #Session random hash
+            $sessionToken = $this->m_crypto->randomToken();
 
-          if($rememberMe)
+            
+            $timestamp = CURRENT_TIME + (self::USER_SESSION_EXPIRY * 60);
+
+            $sessionEnd = date(DATE_FORMAT, $timestamp);
+           
+
+           
+
+            
+
+            $sessions = $this->m_sessionRepository->listByUserId(userId: $userId);
+
+            $loggedDevices = 0;
+            foreach($sessions as $session)
+            {
+                if(is_object($session))
+                {
+
+                    
+                    //todo validate date
+
+
+                    $loggedDevices++;
+                }
+            }
+
+
+          if($loggedDevices > (int)EZENV["MAX_DEVICES_ALLOWED"])
           {
-            $sessionEnd = time() + (self::USER_SESSION_EXPIRY * 60);
+            throw new ApiError("Maximun_devices_logged");
           }
 
-          $sessions = $this->m_sessionRepository->listByUserId($userId);
 
          
           $create = $this->m_sessionRepository->create(
               userId: $userId,
+              deviceId: $this->m_deviceService->getDeviceId(),
               token: $sessionToken,
               expiresAt: $sessionEnd);
 
@@ -56,7 +88,7 @@
                if($this->m_cookie->set(
                    name: self::USER_SESSION_NAME,
                    value: $sessionToken,
-                   cookieExpiration: $sessionEnd))
+                   cookieExpiration: $rememberMe ? $sessionEnd : 0))
                 {
                     return true;
                 }

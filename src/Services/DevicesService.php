@@ -41,6 +41,7 @@
 
 
     /**
+     * 
      */
     public function listDevicesByUserId(string $userId) : stdClass
     {
@@ -49,6 +50,11 @@
     }
 
 
+    /**
+     * @return bool
+     * This method will verify if a cookie exits and find the db record 
+     * using the cookie identifier and then validate the information.
+     */
     public function isNewDevice() : bool
     {
         if(!$this->m_cookie->exists(self::COOKIE_NAME))
@@ -58,36 +64,85 @@
 
         $this->m_devicesModel = $this->m_devicesRepository->getDeviceByCookieIdentifier(cookieIdentifier: $this->m_cookie->get(self::COOKIE_NAME));
 
-        //todo match IP and name too
+        if(!empty($this->m_devicesModel->id))
+        {
+            #Get browser info
+            $browserInfo = $this->m_helper->getBrowserInfo();
+
+            #Get public Ip
+            $publicIp = $this->m_helper->publicIP();
+
+            #If everything match this is a valid device.
+            if($this->m_devicesModel->ip === $publicIp && $this->m_devicesModel->name == $browserInfo->name)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    public function getDeviceId() : int
+    {
+        if(!$this->m_cookie->exists(self::COOKIE_NAME))
+        {
+            return 0;
+        }
+
+        $this->m_devicesModel = $this->m_devicesRepository->getDeviceByCookieIdentifier(cookieIdentifier: $this->m_cookie->get(self::COOKIE_NAME));
 
         if(!empty($this->m_devicesModel->id))
         {
-            return true;
+            #Get browser info
+            $browserInfo = $this->m_helper->getBrowserInfo();
+
+            #Get public Ip
+            $publicIp = $this->m_helper->publicIP();
+
+            #If everything match this is a valid device.
+            if($this->m_devicesModel->ip === $publicIp && $this->m_devicesModel->name == $browserInfo->name)
+            {
+                return $this->m_devicesModel->id;
+            }
         }
 
-        return false;
-
+        return 0;
     }
 
+
+    /**
+     * @param int userId
+     * This method will generate a new token and assign it to a 
+     * cookie and save the record in the database for 1 year.
+     */
     public function addNewDevice(int $userId) : void
     {
+        #Generate a random token
         $randomHash = $this->m_crypto->randomToken();
 
-        $deviceName = "";
+        #Get browser info
+        $browserInfo = $this->m_helper->getBrowserInfo();
 
-        //todo time
+        #Set device token expiration time to 1 year
+        $sessionEnd = date(DATE_FORMAT, strtotime('+1 year', CURRENT_TIME));
 
-
-        if(!$this->m_cookie->set(name: self::COOKIE_NAME, value: $randomHash, cookieExpiration: 0))
+        #Set device token cookie
+        if(!$this->m_cookie->set(
+            name: self::COOKIE_NAME, 
+            value: $randomHash, 
+            cookieExpiration: $sessionEnd))
         {
-            throw new Exception("unable to save device");
+            throw new Exception("Unable to save device");
         }
 
+        #Save device info in the DB
         $this->m_devicesRepository->addNewDevice(
             userId: $userId, 
             ipAddress: $this->m_helper->publicIP(), 
-            deviceName: $deviceName, 
-            cookieIdentifier: $randomHash
+            deviceName: $browserInfo->name, 
+            cookieIdentifier: $randomHash,
+            expiresAt: $sessionEnd
         );
     }
 

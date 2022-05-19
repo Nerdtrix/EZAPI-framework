@@ -87,39 +87,35 @@
 
       if($isNewDevice || $rememberMe && $this->m_userAuthModel->isTwoFactorAuth)
       {
-        #Send a new OTP to the email address
-        if($this->m_web2FaService->createOtpSessionToken(userId: $this->m_userAuthModel->id))
-        {
-          throw new ApiError ("otp_validation_required");
-        }
+        // #Send a new OTP to the email address
+        // if($this->m_web2FaService->createOtpSessionToken(userId: $this->m_userAuthModel->id))
+        // {
+        //   throw new ApiError ("otp_validation_required");
+        // }
 
-        throw new ApiError ("unable_to_create_OTP_session");
+        // throw new ApiError ("unable_to_create_OTP_session");
       }
 
+      
       if($isNewDevice)
       {
-        if($rememberMe)
-        {
-          #save device
-          $this->m_deviceService->addNewDevice(userId: $this->m_userAuthModel->id);
-        }
+        #save device
+        $this->m_deviceService->addNewDevice(userId: $this->m_userAuthModel->id);
 
         #send new device email
         $this->m_deviceService->sendNewDeviceDetectedEmail(email: $this->m_userAuthModel->email);
       }
 
-      #Create session
-      if($this->m_sessionService->create(
-        userId: $this->m_userAuthModel->id,
-        rememberMe: $rememberMe
-      ))
-      {
-        $this->m_userModel = $this->m_userRepository->getById(userId: $this->m_userAuthModel->id);
 
-        return $this->m_userModel;
+      #Create session
+      if(!$this->m_sessionService->create(userId: $this->m_userAuthModel->id, rememberMe: $rememberMe))
+      {
+        throw new ApiError ("unable_to_authenticate");
       }
-      
-      throw new ApiError ("unable_to_authenticate");
+
+      $this->m_userModel = $this->m_userRepository->getById(userId: $this->m_userAuthModel->id);
+
+      return $this->m_userModel;
     }
 
    

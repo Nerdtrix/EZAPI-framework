@@ -3,9 +3,9 @@
 
     class Crypto implements ICrypto
     {
-        public function randomToken() : string
+        public function randomToken(int $bytes = 64) : string
         {
-            return base64_encode(openssl_random_pseudo_bytes(32));
+            return bin2hex(openssl_random_pseudo_bytes($bytes));
         }
     }
 ?>

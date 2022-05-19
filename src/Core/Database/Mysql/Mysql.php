@@ -4,7 +4,7 @@
     use \PDOException;
     use \Exception;
     use Core\Exceptions\Error;
-    
+use stdClass;
 
     class Mysql implements IMysql
     {
@@ -35,7 +35,7 @@
             if(empty($model)) throw new Exception("A data model is required");
             if(!class_exists($model)) throw new Exception("the model class is invalid");
 
-            $data = [];
+            
 
             #prepare the query
             $stmt = $this->m_db->prepare($query);
@@ -52,12 +52,20 @@
                 throw new Exception($stmt->error);
             }
 
-            if($stmt->rowCount() == 1)
+            
+            if($stmt->rowCount() <= 1)
             {
                 $results = $stmt->fetch();
 
                 #new Instance of a model
                 $modelObject = new $model();
+
+                #return empty object on bool
+                if(is_bool($results))
+                {
+                    return $modelObject;
+                }
+                
 
                 #Propagate results
                 foreach ($results as $key => $value) 
@@ -69,12 +77,13 @@
                     }
                 }
 
-                $data = $modelObject;
+                return $modelObject;
             }
             else
             {
-
                 $results = $stmt->fetchAll();
+
+                $data = [];
 
                 foreach($results as $result)
                 {
@@ -94,9 +103,9 @@
                     #Build array
                     array_push($data, $modelObject);
                 }
+
+                return (object)$data;
             }
-           
-            return (object)$data;
         }
 
 
@@ -112,7 +121,7 @@
 
             for ($i = 1; $i <= count($bind); $i++)
             {
-                $stmt->bindValue($i, array_values($bind));
+                $stmt->bindValue($i, $bind[$i - 1]);
             }
 
             if(!$stmt->execute())
@@ -138,7 +147,7 @@
             #Bind data
             for ($i = 1; $i <= count($bind); $i++)
             {
-                $stmt->bindValue($i, array_values($bind));
+                $stmt->bindValue($i, $bind[$i - 1]);
             }
 
             if(!$stmt->execute())
@@ -164,7 +173,7 @@
             #Bind data
             for ($i = 1; $i <= count($bind); $i++)
             {
-                $stmt->bindValue($i, array_values($bind));
+                $stmt->bindValue($i, $bind[$i - 1]);
             }
 
             if(!$stmt->execute())
@@ -192,7 +201,9 @@
         {
             return $this->m_db->lastInsertId();
         }
+        
 
+ 
 
         /**
          * Create a PDO database connection.

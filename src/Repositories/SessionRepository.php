@@ -2,7 +2,7 @@
     namespace Repositories;
     use Core\Database\Mysql\IMysql;
     use Models\SessionModel;
-use stdClass;
+    use stdClass;
 
     class SessionRepository implements ISessionRepository
     {
@@ -15,15 +15,15 @@ use stdClass;
             $this->m_db = $mySql;
         }
 
-        public function create(int $userId, string $token, int $expiresAt) : bool
+        public function create(int $userId, int $deviceId, string $token, string $expiresAt) : bool
         {
             return $this->m_db->insert(
-                query: "INSERT INTO {$this->table} SET userId = ? token = ? expiresAt = ?",
-                bind: [$userId, $token, $expiresAt]
+                query: "INSERT INTO {$this->table} SET userId = ?, deviceId = ?, token = ?, expiresAt = ?",
+                bind: [$userId, $deviceId, $token, $expiresAt]
             );
         }
 
-        public function listByUserId(int $userId) : stdClass
+        public function listByUserId(int $userId) : object
         {
             return $this->m_db->select(
                 query: "SELECT * FROM {$this->table} WHERE userId = ?",
@@ -34,13 +34,14 @@ use stdClass;
 
          /**
          * @param int userId
+         * @param int deviceId
          * @return SessionModel
          */
-        public function getByUserId(int $userId): SessionModel
+        public function getByUserId(int $userId, int $deviceId): SessionModel
         {
             return $this->m_db->select(
-                query: "SELECT * FROM {$this->table} WHERE userId = ? LIMIT 1",
-                bind: [$userId],
+                query: "SELECT * FROM {$this->table} WHERE userId = ? AND deviceId = ? ORDER BY id DESC LIMIT 1",
+                bind: [$userId, $deviceId],
                 model: SessionModel::class
             );
         }

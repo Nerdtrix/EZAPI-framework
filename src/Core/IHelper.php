@@ -6,5 +6,7 @@
         function publicIP() : string;
 
         function randomNumber(int $length) : int;
+
+        function getBrowserInfo() : object;
     }
 ?>

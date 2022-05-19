@@ -28,4 +28,16 @@
             );
         }
 
+        /**
+         * @param int token
+         * @return bool
+         */
+        public function deleteByOtpId(int $token) : bool
+        {
+            return $this->m_db->delete(
+                query: "DELETE FROM {$this->table} WHERE token = ?",
+                bind: [$token]
+            );
+        }
+
     }

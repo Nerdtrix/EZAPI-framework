@@ -20,6 +20,6 @@
 
     public function __destruct()
     {
-      //$this->request = null;
+      unset($this->request);
     }
   }

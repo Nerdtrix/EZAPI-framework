@@ -17,14 +17,21 @@
 
             IWeb2FAService::class => Web2FAService::class,
             IDevicesService::class => DevicesService::class,
+
+
             ICookie::class => Cookie::class,
             IHelper::class => Helper::class,
             ICrypto::class => Crypto::class,
             
             IMysql::class => Mysql::class,
 
-            ISessionRepository::class => SessionRepository::class
+            ISessionRepository::class => SessionRepository::class,
 
+            #Services
+            \Services\ISessionService::class => \Services\SessionService::class,
+
+
+            \Repositories\IWeb2FARepository::class => \Repositories\Web2FARepository::class
             
         ];
 

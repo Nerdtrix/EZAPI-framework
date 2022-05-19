@@ -2,8 +2,9 @@
     namespace EZAPIFRAMEWORK;
     use \Exception;
     use \TypeError;
+    use \Error;
     use Core\Dispatch;
-    use Core\Exceptions\Error;
+    use Core\Exceptions\Error as ErrorHandler;
 
     /**
     *################################
@@ -66,9 +67,13 @@
     }
     catch(Exception $ex)
     {
-        Error::handler($ex);
+        ErrorHandler::handler($ex);
     }
     catch(TypeError $ex)
     {
-        Error::handler($ex);
+        ErrorHandler::handler($ex);
+    }
+    catch(Error $ex)
+    {
+        ErrorHandler::handler($ex);
     }

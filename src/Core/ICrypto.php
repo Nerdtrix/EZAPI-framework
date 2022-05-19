@@ -3,6 +3,6 @@
 
     interface ICrypto
     {
-        function randomToken() : string;
+        function randomToken(int $bytes = 64) : string;
     }
 ?>

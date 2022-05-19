@@ -7,6 +7,6 @@
 
         function getDeviceByCookieIdentifier(string $cookieIdentifier) : \Models\DevicesModel;
 
-        function addNewDevice(int $userId, string $ipAddress, string $deviceName, string $cookieIdentifier) : int;
+        function addNewDevice(int $userId, string $ipAddress, string $deviceName, string $cookieIdentifier, string $expiresAt) : int;
     }
 ?>

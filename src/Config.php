@@ -18,10 +18,20 @@
 
             
             #Define timezone
-            define("TIMESTAMP", "Y-m-d H:i:s");
+            define('ONE_SECOND', 1);
+            define('ONE_MINUTE', 60 * ONE_SECOND);
+            define('ONE_HOUR',   60 * ONE_MINUTE);
+            define('ONE_DAY',    24 * ONE_HOUR);
+            define('ONE_YEAR',  365 * ONE_DAY);
+            define("DATE_FORMAT", "Y-m-d H:i:s");
+            define("CURRENT_TIME", time()); //Unix timestamp in seconds
+            define("CURRENT_DATE", date("Y-m-d"));
+            define("TIMESTAMP", date(DATE_FORMAT));
             define("CURRENT_TIMEZONE", "America/New_York");
             date_default_timezone_set(CURRENT_TIMEZONE);
 
             define("PRODUCTION", false);
+
+            
         }
     }

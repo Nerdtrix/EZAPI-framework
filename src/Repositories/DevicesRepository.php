@@ -59,13 +59,11 @@
          * @param string cookieIdentifier
          * @return int last inserted Id
          */
-        public function addNewDevice(int $userId, string $ipAddress, string $deviceName, string $cookieIdentifier) : int
+        public function addNewDevice(int $userId, string $ipAddress, string $deviceName, string $cookieIdentifier, string $expiresAt) : int
         {
-            $query =  "INSERT INTO {$this->devicesTable} SET userId = ?, ip = ?, name = ?, identifier = ?";
-
             return $this->m_db->insert(
-                query: $query,
-                bind: [$userId, $ipAddress, $deviceName, $cookieIdentifier]
+                query: "INSERT INTO {$this->devicesTable} SET userId = ?, ip = ?, name = ?, identifier = ?, expiresAt = ?",
+                bind: [$userId, $ipAddress, $deviceName, $cookieIdentifier, $expiresAt]
             );
         }
 

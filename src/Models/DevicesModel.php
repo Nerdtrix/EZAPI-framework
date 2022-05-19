@@ -5,9 +5,9 @@
     {
         public int $id;
         public int $userId;
-        public string $ipAddress;
-        public string $deviceName;
-        public string $cookieIdentifier;
+        public string $ip;
+        public string $name;
+        public string $identifier;
         public string $createdAt;
         public string $updatedAt;
         public string $expiresAt;      
