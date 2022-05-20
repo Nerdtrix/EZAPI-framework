@@ -5,6 +5,8 @@
     use Core\Exceptions\ApiError;
 
 
+
+
     class Authentication extends Router
     {
         protected IAuthenticationService $m_authService;
@@ -42,6 +44,7 @@
          */
         public function Login(object $input) : void
         { 
+            
             if(is_null($input))
             {
                 throw new ApiError("Invalid request body");

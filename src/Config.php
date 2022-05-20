@@ -7,7 +7,7 @@
         {
             define("SLASH", DIRECTORY_SEPARATOR);
             define("ROOT_DIR", dirname(__DIR__, 1));
-            define("SRC_DIR", dirname(__DIR__));
+            define("SRC_DIR", dirname(__FILE__));
 
             define("DEFAULT_ROUTE_DIRECTORY", "Controllers");
             define("DEFAULT_ROUTE", "User");

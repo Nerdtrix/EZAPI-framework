@@ -2,6 +2,7 @@
     namespace Core\Mail;
     use Exception;
     use InvalidArgumentException;
+    use Core\Mail\Templates\HtmlCompiler;
 
     /**
      * @see https://github.com/Nerdtrix/EZMAIL
@@ -22,7 +23,6 @@
 
         #Message
         public string $subject = "";
-        public string $body = "";
         public array $from = [];
         public array $to = [];
         public array $cc = [];
@@ -35,6 +35,16 @@
         private IMailIdGenerator $mailIdGenerator;
         private IMailBuilder $mailBuilder;    
         private ?ISMTP $smtp;
+
+        #Mail template config using our own HTML compiler
+        public string $locale = EZENV["DEFAULT_LOCALE"];
+        public string $charset = "UTF-8";
+        public string $title = EZENV["APP_NAME"];
+        public string $header = "";
+        public string $preHeader = "";
+        public string $body = "";
+        public string $footer = "";
+        public string $htmlTemplate = "Default.html";
     
         public function __construct(ISMTPFactory $smtpFactory, IMailIdGenerator $mailIdGenerator, IMailBuilder $mailBuilder)
         {
@@ -46,7 +56,7 @@
     
             $this->smtpFactory = $smtpFactory;
             $this->mailIdGenerator = $mailIdGenerator;
-            $this->mailBuilder = $mailBuilder;
+            $this->mailBuilder = $mailBuilder;            
         }
     
         private function validate() : void
@@ -158,11 +168,23 @@
                 {
                     $bounceAddress = $this->username;
                 }
+
+                #Compile the HTML template with the information provided.
+                $body = HtmlCompiler::run([
+                    "locale" => $this->locale,
+                    "charset" => $this->charset,
+                    "title" => $this->title, #optional
+                    "header" => $this->header, #can also be html
+                    "footer" => $this->footer, # Can also be html
+                    "preHeader" => $this->preHeader,
+                    "body" => $this->body
+                ], $this->htmlTemplate);
     
+                #Build email
                 $this->mailBuilder->build(
                     $mailId,
                     $this->subject,
-                    $this->body,
+                    $body,
                     $from,
                     $this->to,
                     $this->cc,

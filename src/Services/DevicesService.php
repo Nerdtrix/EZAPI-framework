@@ -1,13 +1,12 @@
 <?php
     namespace Services;
     use \stdClass;
-    use Core\Exceptions\ApiError;
     use Core\{IHelper, ICookie, ICrypto};
-use Core\Mail\EZMAIL;
-use Exception;
+    use Core\Mail\EZMAIL;
+    use Exception;
     use Models\DevicesModel;
     use Repositories\{IDevicesRepository};
-  
+    
     
   class DevicesService implements IDevicesService
   {
@@ -155,10 +154,12 @@ use Exception;
      */
     public function sendNewDeviceDetectedEmail(string $name, string $email) : void
     {
-        $this->m_email->subject = "login_from_a_new_device_detected";
-        $this->m_email->body = "this is a test";
         $this->m_email->to = [$name => $email]; //missing name $name, 
-
+        $this->m_email->subject = "login_from_a_new_device_detected";
+        $this->m_email->header = sprintf("<h1>%s</h1>", EZENV["APP_NAME"]);
+        $this->m_email->preHeader = "we_detected_a_new_device";
+        $this->m_email->body = "This is a test";
+        
         $this->m_email->send();
     }
 
