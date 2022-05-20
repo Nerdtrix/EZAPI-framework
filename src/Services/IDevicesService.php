@@ -6,7 +6,7 @@
         function listDevicesByUserId(string $userId) : \stdClass;
         function isNewDevice() : bool;
         function addNewDevice(int $userId) : void;
-        function sendNewDeviceDetectedEmail(string $email) : void;
+        function sendNewDeviceDetectedEmail(string $name, string $email) : void;
 
         function getDeviceId() : int;
     }

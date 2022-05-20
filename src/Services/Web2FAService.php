@@ -1,10 +1,11 @@
 <?php
     namespace Services;
 
-use Core\Exceptions\ApiError;
-use Core\Ihelper;
+    use Core\Exceptions\ApiError;
+    use Core\Ihelper;
     use Models\Web2FAModel;
     use Repositories\IWeb2FARepository;
+    use Core\Mail\EZMAIL;
     
     
   class Web2FAService implements IWeb2FAService
@@ -17,13 +18,17 @@ use Core\Ihelper;
 
       private Web2FAModel $m_web2FAModel;
 
+      private EZMAIL $m_email;
+
       private const OTP_EXPIRATION_MINUTES = 15;
 
-    public function __construct(Ihelper $helper, IWeb2FARepository $web2FaRepository)
+    public function __construct(Ihelper $helper, IWeb2FARepository $web2FaRepository, EZMAIL $email)
     {
         $this->m_helper = $helper;
 
         $this->m_web2FaRepository = $web2FaRepository;
+
+        $this->m_email = $email;
     }
 
 
@@ -64,13 +69,17 @@ use Core\Ihelper;
         return false;
     }
 
-    public function sendOtpEmail(string $email) : bool
+    public function sendOtpEmail(string $name, string $email) : void
     {
         $otp = $this->m_helper->randomNumber(6);
 
         //send otp
 
-        return true;
+        $this->m_email->subject = "One-time Password";
+        $this->m_email->body = "this is a test with your OTP: {$otp}";
+        $this->m_email->to = [$name => $email]; //missing name $name, 
+
+        $this->m_email->send();
     }
 
 

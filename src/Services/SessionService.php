@@ -46,11 +46,7 @@
             
             $timestamp = CURRENT_TIME + (self::USER_SESSION_EXPIRY * 60);
 
-            $sessionEnd = date(DATE_FORMAT, $timestamp);
-           
-
-           
-
+            $sessionEnd = date(DATE_FORMAT, $timestamp);      
             
 
             $sessions = $this->m_sessionRepository->listByUserId(userId: $userId);

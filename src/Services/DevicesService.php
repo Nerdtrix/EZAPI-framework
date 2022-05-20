@@ -3,7 +3,8 @@
     use \stdClass;
     use Core\Exceptions\ApiError;
     use Core\{IHelper, ICookie, ICrypto};
-    use Exception;
+use Core\Mail\EZMAIL;
+use Exception;
     use Models\DevicesModel;
     use Repositories\{IDevicesRepository};
   
@@ -13,7 +14,7 @@
     #Repositories
     private IDevicesRepository $m_devicesRepository;
 
-    private $m_email;
+    private EZMAIL $m_email;
 
 
 
@@ -30,12 +31,13 @@
     
   
     #Constructor
-    public function __construct(IDevicesRepository $devicesRepository, ICookie $cookie, IHelper $helper, ICrypto $crypto)
+    public function __construct(IDevicesRepository $devicesRepository, ICookie $cookie, IHelper $helper, ICrypto $crypto, EZMAIL $email)
     {
       $this->m_devicesRepository = $devicesRepository;
       $this->m_cookie = $cookie;
       $this->m_helper = $helper;
       $this->m_crypto = $crypto;
+      $this->m_email = $email;
     }
     
 
@@ -146,13 +148,18 @@
         );
     }
 
-    public function sendNewDeviceDetectedEmail(string $email) : void
+    /**
+     * @param string name
+     * @param string email
+     * This method sends a new email to the user. 
+     */
+    public function sendNewDeviceDetectedEmail(string $name, string $email) : void
     {
-        // $this->m_email->send(
-        //     email: $email,
-        //     subject: "A new device has been detected!",
-        //     body: ""
-        // );
+        $this->m_email->subject = "login_from_a_new_device_detected";
+        $this->m_email->body = "this is a test";
+        $this->m_email->to = [$name => $email]; //missing name $name, 
+
+        $this->m_email->send();
     }
 
   }

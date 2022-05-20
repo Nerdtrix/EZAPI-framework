@@ -24,7 +24,7 @@
          */
         public function getUserByEmail(string $email) : UserAuthenticationModel
         {
-            $query =  "SELECT user.id, user.roleId, user.statusId, user.username, user.password, user.email, user.isTwoFactorAuth, role.role, status.status
+            $query =  "SELECT user.id, user.roleId, user.statusId, user.username, user.fName, user.lName, user.password, user.email, user.isTwoFactorAuth, role.role, status.status
                 FROM {$this->usertable} user, {$this->roleTable} role, {$this->statusTable} status
                 WHERE user.email = ? AND user.statusId = status.id AND user.roleId = role.id
                 ORDER BY user.email ASC 
@@ -44,7 +44,7 @@
          */
         public function getUserByUsername(string $username) : UserAuthenticationModel
         {            
-            $query =  "SELECT user.id, user.roleId, user.statusId, user.username, user.password, user.email, user.isTwoFactorAuth, role.role, status.status
+            $query =  "SELECT user.id, user.roleId, user.statusId, user.username, user.fName, user.lName, user.password, user.email, user.isTwoFactorAuth, role.role, status.status
                 FROM {$this->usertable} user, {$this->roleTable} role, {$this->statusTable} status
                 WHERE user.username = ? AND user.statusId = status.id AND user.roleId = role.id
                 ORDER BY user.username ASC 
