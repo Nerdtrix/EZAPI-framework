@@ -1,16 +1,19 @@
 <?php
-  namespace Core; 
+  namespace Core;
+  use Core\Language\ITranslator;
 
-  
   class Router 
   {
     public IRequest $request;
 
-    public function __construct() 
+    public ITranslator $lang;
+
+    public function __construct(?IRequest $request = null, ?ITranslator $language = null) 
     {
       //Get from singleton later
-      $this->request = new Request();
+      $this->request = $request;
 
+      $this->lang = $language;
     }
 
     public function request()

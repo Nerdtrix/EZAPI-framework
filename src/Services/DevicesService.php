@@ -158,7 +158,13 @@
         $this->m_email->subject = "login_from_a_new_device_detected";
         $this->m_email->header = sprintf("<h1>%s</h1>", EZENV["APP_NAME"]);
         $this->m_email->preHeader = "we_detected_a_new_device";
-        $this->m_email->body = "This is a test";
+
+        $this->m_email->body = sprintf("<p>%s</p><br>", "we_detected_a_new_device");
+        $this->m_email->body .= sprintf("<p>%s:</p>", "a_new_login_was_attempted");
+        $this->m_email->body .= sprintf("<p>%s: %s</p>", "IP", "ip goes here");
+        $this->m_email->body .= sprintf("<p>%s: %s</p>", "browser:", "browser goes here");
+        $this->m_email->body .= sprintf("<p>%s: %s</p>", "Date and time:", TIMESTAMP);
+        $this->m_email->body .= sprintf("<br><p>%s</p>", "if_you_did_not_make_this_change");
         
         $this->m_email->send();
     }
