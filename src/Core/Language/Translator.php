@@ -6,6 +6,8 @@ use Exception;
     class Translator implements ITranslator
     {
         private array $m_dictionary;
+
+        private string $m_locale;
         
 
         public const LANGUAGES = [
@@ -63,6 +65,12 @@ use Exception;
             $this->loadDictionary($locale);
         }
 
+        
+        public function getLocale() : string
+        {
+            return $this->m_locale;
+        }
+
 
         /**
          * @param string locale
@@ -87,5 +95,8 @@ use Exception;
 
             #Load the new language
             $this->m_dictionary = require($dictionary);
+
+            #Set locale
+            $this->m_locale = $locale;
         }
     }

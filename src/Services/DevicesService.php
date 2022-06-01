@@ -6,6 +6,8 @@
     use Exception;
     use Models\DevicesModel;
     use Repositories\{IDevicesRepository};
+    use Core\Language\ITranslator;
+    use Core\Mail\Templates\NewDevice\NewDeviceMail;
     
     
   class DevicesService implements IDevicesService
@@ -15,6 +17,7 @@
 
     private EZMAIL $m_email;
 
+    private ITranslator $m_lang;
 
 
     #Core
@@ -30,13 +33,20 @@
     
   
     #Constructor
-    public function __construct(IDevicesRepository $devicesRepository, ICookie $cookie, IHelper $helper, ICrypto $crypto, EZMAIL $email)
+    public function __construct(
+        IDevicesRepository $devicesRepository, 
+        ICookie $cookie, 
+        IHelper $helper, 
+        ICrypto $crypto, 
+        EZMAIL $email,
+        ITranslator $language)
     {
       $this->m_devicesRepository = $devicesRepository;
       $this->m_cookie = $cookie;
       $this->m_helper = $helper;
       $this->m_crypto = $crypto;
       $this->m_email = $email;
+      $this->m_lang = $language;
     }
     
 
@@ -152,20 +162,22 @@
      * @param string email
      * This method sends a new email to the user. 
      */
-    public function sendNewDeviceDetectedEmail(string $name, string $email) : void
+    public function sendNewDeviceDetectedEmail(string $name, string $email, string $locale) : void
     {
-        $this->m_email->to = [$name => $email]; //missing name $name, 
-        $this->m_email->subject = "login_from_a_new_device_detected";
-        $this->m_email->header = sprintf("<h1>%s</h1>", EZENV["APP_NAME"]);
-        $this->m_email->preHeader = "we_detected_a_new_device";
+        $this->m_email->to = [$name => $email];
+        $this->m_email->subject = $this->m_lang->translate("login_from_a_new_device_detected");
 
-        $this->m_email->body = sprintf("<p>%s</p><br>", "we_detected_a_new_device");
-        $this->m_email->body .= sprintf("<p>%s:</p>", "a_new_login_was_attempted");
-        $this->m_email->body .= sprintf("<p>%s: %s</p>", "IP", "ip goes here");
-        $this->m_email->body .= sprintf("<p>%s: %s</p>", "browser:", "browser goes here");
-        $this->m_email->body .= sprintf("<p>%s: %s</p>", "Date and time:", TIMESTAMP);
-        $this->m_email->body .= sprintf("<br><p>%s</p>", "if_you_did_not_make_this_change");
-        
+        $this->m_email->htmlTemplate = sprintf("NewDevice%sNewDeviceMail.phtml", SLASH);
+
+        $brower = $this->m_helper->getBrowserInfo();
+
+        #Fill template variables
+        NewDeviceMail::$date = date("m/d/Y H:i:s", strtotime(TIMESTAMP));
+        NewDeviceMail::$browser = $brower->name;
+        NewDeviceMail::$platform = $brower->platform;
+        NewDeviceMail::$ipAddress = $this->m_helper->publicIP();
+        NewDeviceMail::$locale = $locale;
+      
         $this->m_email->send();
     }
 

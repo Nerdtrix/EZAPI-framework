@@ -105,7 +105,8 @@
         #send new device email
         $this->m_deviceService->sendNewDeviceDetectedEmail(
           name: $this->m_userAuthModel->fName, 
-          email: $this->m_userAuthModel->email
+          email: $this->m_userAuthModel->email,
+          locale: $this->m_userAuthModel->locale
         );
       }
 

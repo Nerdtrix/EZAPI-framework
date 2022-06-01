@@ -2,7 +2,6 @@
     namespace Core\Mail;
     use Exception;
     use InvalidArgumentException;
-    use Core\Mail\Templates\HtmlCompiler;
 
     /**
      * @see https://github.com/Nerdtrix/EZMAIL
@@ -36,16 +35,10 @@
         private IMailBuilder $mailBuilder;    
         private ?ISMTP $smtp;
 
-        #Mail template config using our own HTML compiler
-        public string $locale = EZENV["DEFAULT_LOCALE"];
-        public string $charset = "UTF-8";
-        public string $title = EZENV["APP_NAME"];
-        public string $header = "";
-        public string $preHeader = "";
-        public string $body = "";
-        public string $footer = "";
-        public string $htmlTemplate = "Default.html";
-    
+
+        public string $htmlTemplate = "";
+
+           
         public function __construct(ISMTPFactory $smtpFactory, IMailIdGenerator $mailIdGenerator, IMailBuilder $mailBuilder)
         {
             if(!empty(EZENV["SMTP_AUTH_TOKEN"]))
@@ -56,7 +49,7 @@
     
             $this->smtpFactory = $smtpFactory;
             $this->mailIdGenerator = $mailIdGenerator;
-            $this->mailBuilder = $mailBuilder;            
+            $this->mailBuilder = $mailBuilder;  
         }
     
         private function validate() : void
@@ -66,7 +59,7 @@
                 throw new InvalidArgumentException("Message subject is empty");
             }
     
-            if (empty($this->body))
+            if (empty($this->body) && empty($this->htmlTemplate))
             {
                 throw new InvalidArgumentException("Message body is empty");
             }
@@ -169,22 +162,32 @@
                     $bounceAddress = $this->username;
                 }
 
-                #Compile the HTML template with the information provided.
-                $body = HtmlCompiler::run([
-                    "locale" => $this->locale,
-                    "charset" => $this->charset,
-                    "title" => $this->title, #optional
-                    "header" => $this->header, #can also be html
-                    "footer" => $this->footer, # Can also be html
-                    "preHeader" => $this->preHeader,
-                    "body" => $this->body
-                ], $this->htmlTemplate);
+
+                #if html template is not empty load the template to the body instead.
+                if(!empty($this->htmlTemplate))
+                {
+                    $template = sprintf("%s%sTemplates%s%s", dirname(__FILE__), SLASH, SLASH, $this->htmlTemplate);
+
+                    if(!file_exists($template)) throw new Exception("The file location does not exists: {$template}");
+
+                    #Start buffering
+                    ob_start();
+
+                    #Include the template
+                    include($template);
+
+                    #Assign the template's content to the body of the email protocol
+                    $this->body =  ob_get_contents();
+
+                    #End buffering
+                    ob_end_clean ();
+                }
     
                 #Build email
                 $this->mailBuilder->build(
                     $mailId,
                     $this->subject,
-                    $body,
+                    $this->body,
                     $from,
                     $this->to,
                     $this->cc,

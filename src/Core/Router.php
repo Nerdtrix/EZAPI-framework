@@ -8,12 +8,17 @@
 
     public ITranslator $lang;
 
-    public function __construct(?IRequest $request = null, ?ITranslator $language = null) 
-    {
-      //Get from singleton later
-      $this->request = $request;
+    // public function __construct(?IRequest $request = null, ?ITranslator $language = null) 
+    // {
+    //   //Get from singleton later
+    //   $this->request = $request;
 
-      $this->lang = $language;
+    //   $this->lang = $language;
+    // }
+
+    public function __construct()
+    {
+      $this->request = new Request;
     }
 
     public function request()

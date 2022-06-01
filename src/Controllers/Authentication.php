@@ -44,6 +44,42 @@
          */
         public function Login(object $input) : void
         { 
+
+//             $mmg = "test";
+
+// $doc = new \DOMDocument();
+// $doc->loadHTML("<html><body>" . $mmg . "</body></html>");
+// echo $doc->saveHTML();die;
+
+
+
+
+
+
+
+
+                    #Create new dom document
+//                     ob_start();
+
+// include(SRC_DIR ."/Core/Mail/Templates/en_US/NewDevice.phtml");
+
+// $file_content = ob_get_contents();
+
+// print_r ($file_content);
+
+// ob_end_clean ();
+
+//                     #Looad the HTML data
+//                   die;
+
+
+
+
+
+
+
+
+
             
             if(is_null($input))
             {

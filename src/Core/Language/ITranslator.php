@@ -6,5 +6,7 @@
         function translate(string $key) : string;
 
         function setLocale(string $locale): void;
+
+        function getLocale() : string;
     }
 ?>
