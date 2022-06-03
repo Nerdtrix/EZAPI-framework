@@ -75,5 +75,4 @@
 
         public function extend() : void {}
     }
-
 ?>

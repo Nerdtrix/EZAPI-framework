@@ -5,5 +5,4 @@
     {
         public function log(string $format, ...$values) : void;
     }
-
 ?>

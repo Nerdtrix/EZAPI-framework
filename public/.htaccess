@@ -12,5 +12,5 @@ RewriteCond %{REQUEST_FILENAME} !-d
 #The request is a file
 RewriteCond %{REQUEST_FILENAME} !-f
 
-#Use index in current directory as a mirror
+#Use index in current directory as a mirror. Every request will be redirected through this file. 
 RewriteRule ^(.+)$ index.php/$1 [L,QSA]

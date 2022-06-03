@@ -18,5 +18,4 @@
             IMailBuilderWriter $writer
         ) : void;
     }
-
 ?>

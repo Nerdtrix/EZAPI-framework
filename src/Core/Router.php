@@ -1,6 +1,5 @@
 <?php
   namespace Core;
-  use Core\{IRequest, Request};
 
   class Router 
   {

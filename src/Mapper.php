@@ -34,6 +34,5 @@
             \Services\IWeb2FAService::class => \Services\Web2FAService::class,
             \Services\IDevicesService::class => \Services\DevicesService::class,
         ];
-
     }
 ?>

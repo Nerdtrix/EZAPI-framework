@@ -31,8 +31,6 @@
             date_default_timezone_set(CURRENT_TIMEZONE);
 
             define("PRODUCTION", false);
-
-            
         }
     }
 ?>

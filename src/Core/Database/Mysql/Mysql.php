@@ -4,7 +4,6 @@
     use \PDOException;
     use \Exception;
     use Core\Exceptions\Error;
-use stdClass;
 
     class Mysql implements IMysql
     {

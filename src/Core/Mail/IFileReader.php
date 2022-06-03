@@ -5,5 +5,4 @@
     {
         public function read(string $path) : string;
     }
-
 ?>

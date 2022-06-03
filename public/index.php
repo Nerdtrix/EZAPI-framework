@@ -77,3 +77,4 @@
     {
         ErrorHandler::handler($ex);
     }
+?>
