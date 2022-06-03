@@ -122,3 +122,4 @@
       return $this->m_userModel;
     }
   }
+?>

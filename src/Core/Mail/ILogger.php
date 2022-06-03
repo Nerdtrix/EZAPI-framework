@@ -1,8 +1,9 @@
 <?php
+    namespace Core\Mail;
 
-namespace Core\Mail;
+    interface ILogger
+    {
+        public function log(string $format, ...$values) : void;
+    }
 
-interface ILogger
-{
-    public function log(string $format, ...$values) : void;
-}
+?>

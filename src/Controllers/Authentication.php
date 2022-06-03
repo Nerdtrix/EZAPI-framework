@@ -4,9 +4,6 @@
     use Services\{IAuthenticationService};
     use Core\Exceptions\ApiError;
 
-
-
-
     class Authentication extends Router
     {
         protected IAuthenticationService $m_authService;
@@ -78,3 +75,5 @@
 
         public function extend() : void {}
     }
+
+?>

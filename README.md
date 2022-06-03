@@ -18,4 +18,5 @@ To to Terminal/Run Task/EZAPI server
 - composer dump-autoload
 
 ## First time only
-- Duplicate .env.example x2 and rename them with .env.development and .env.production and copy the content of example to them.
+- Duplicate .env.example and rename them with .env and copy the content of example to them.
+- If Composer is preferred follow the step above.

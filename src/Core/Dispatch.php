@@ -1,17 +1,8 @@
 <?php
     namespace Core;
-<<<<<<< HEAD
-    use Core\Config;
-    use Core\EZENV;
-    use Core\Dictionary;
-    use Core\Exceptions\ApiError;
-    use \ReflectionClass;
-    use \ReflectionFunction;
-=======
-    use Core\DI;
     use Src\Config;
+    use Core\DI;
     use Core\Exceptions\ApiError;
->>>>>>> rebuildtest
     
 
     class Dispatch
@@ -20,15 +11,6 @@
          * @method request
          * This is the entry point of our application.
          */
-<<<<<<< HEAD
-        public static function request() : void
-        {
-            #Load app config
-            Config::load();
-        
-            #Load Enviroment variables.
-            EZENV::load();
-=======
         public function request() : void
         {
             #Load app config
@@ -37,7 +19,6 @@
             #Load EZENV config
             (new EZENV)->load(PRODUCTION);
 
->>>>>>> rebuildtest
 
             #Get the path info from the browser
             $pathInfo = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : $_SERVER['ORIG_PATH_INFO'];
@@ -53,15 +34,11 @@
              * please note that Route is a folder in src and the backslash cannot be changed for any reason
              * this is case sensitive because we are autoloading the classes.
              */
-<<<<<<< HEAD
-            $route =  sprintf("Routes\%s", ucwords(empty($request[0]) && empty($request[1]) ? DEFAULT_ROUTE : $request[0]));
-=======
             $route =  sprintf("%s\%s", 
                 DEFAULT_ROUTE_DIRECTORY,
                 empty($request[0]) && empty($request[1]) ?
                 ucfirst(DEFAULT_ROUTE) : ucfirst($request[0])
             );
->>>>>>> rebuildtest
 
             
             /**
@@ -85,38 +62,6 @@
             */
             if(!class_exists($route) || !method_exists($route, $method))
             {
-<<<<<<< HEAD
-                throw new ApiError(Dictionary::httpResponseCode[400]);
-            }
-
-              /**
-             * If all validations are passed We will pass the params to the method requested
-             * and trigger the method as a new instance.
-             */
-       
-
-            $ref  = new ReflectionClass($route) ;
-            
-            $instances = [];
-            foreach ($ref->getConstructor()->getParameters() as $param) 
-            {
-                // param name
-                $param->name;
-
-                // param type hint (or null, if not specified).
-                $classToInject = $param->getClass()->name;
-
-                if(!empty($classToInject) && !$param->isOptional())
-                {
-                    array_push($instances,  new $classToInject);
-                }
-            }
-
-
-            $instance = $ref->newInstanceArgs($instances);
-            
-            $instance->$method();
-=======
                throw new ApiError(Dictionary::httpResponseCode[404], 404);
             }
 
@@ -129,6 +74,6 @@
             $requestData = (new Request)->data();
 
             $routeInstance->$method($requestData);
->>>>>>> rebuildtest
         }
     }
+?>

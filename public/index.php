@@ -1,16 +1,10 @@
 <?php
     namespace EZAPIFRAMEWORK;
     use \Exception;
-<<<<<<< HEAD
-    use Core\Dispatch;
-    use Core\Errors\ErrorHandler;
-  
-=======
     use \TypeError;
     use \Error;
     use Core\Dispatch;
     use Core\Exceptions\Error as ErrorHandler;
->>>>>>> rebuildtest
 
     /**
     *################################
@@ -31,11 +25,6 @@
     {
         //Check server requirements before instantiation.
 
-<<<<<<< HEAD
-
-        #Composer path
-        $composerPath = sprintf("%s%svendor%sautoload.php", dirname(__DIR__, 1), DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR);
-=======
         #Composer path
         $composerPath = sprintf(
             "%s%svendor%sautoload.php", 
@@ -43,7 +32,6 @@
             DIRECTORY_SEPARATOR, 
             DIRECTORY_SEPARATOR
         );
->>>>>>> rebuildtest
 
         #Verify composer autoload
         if(file_exists($composerPath))
@@ -53,11 +41,7 @@
         else
         {
             #Native Autoload
-<<<<<<< HEAD
-            spl_autoload_register(function ($className)
-=======
             spl_autoload_register(function (string $className)
->>>>>>> rebuildtest
             {
                 $fileName = sprintf(
                     "%s%ssrc%s%s.php", 
@@ -78,22 +62,12 @@
             });
         }
 
-<<<<<<< HEAD
-        //run middleware before dispatching
-
-
-        #Dispatch request
-        Dispatch::request();
-=======
         #Dispatch request
         (new Dispatch)->request();
->>>>>>> rebuildtest
     }
     catch(Exception $ex)
     {
         ErrorHandler::handler($ex);
-<<<<<<< HEAD
-=======
     }
     catch(TypeError $ex)
     {
@@ -102,5 +76,4 @@
     catch(Error $ex)
     {
         ErrorHandler::handler($ex);
->>>>>>> rebuildtest
     }

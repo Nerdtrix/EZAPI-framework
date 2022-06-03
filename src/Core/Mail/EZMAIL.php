@@ -245,3 +245,4 @@
             $this->smtp->writeMailData($data);
         }
     }
+?>

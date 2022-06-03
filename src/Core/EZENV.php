@@ -1,10 +1,6 @@
 <?php
     namespace Core;
     use \SplFileObject;
-<<<<<<< HEAD
-    use Core\Helper;
-=======
->>>>>>> rebuildtest
 
     class EZENV
     {
@@ -13,49 +9,6 @@
          * EZENV is one of many unique features that EZAPI offers. 
          * With this feature you are able to use enviroment variables natively.
          */
-<<<<<<< HEAD
-        public static function load() : void
-        {
-            #use the production .env by default.
-            $fileName = ".env.production";
-            $production = true; #it is always a good idea to know in which mode we are working.
-
-            $localhost = [
-                "127.0.0.1",
-                "::1"
-            ];
-
-            #Get public IP
-            $publicIP = Helper::publicIP();
-
-            #Get local ip
-            $localIP = getHostByName(getHostName());
-
-            /**
-             * While using xammp the ip address is usually 127.0.0.1 or ::1 but while using docker 
-             * the ip address becomes something like this 192.168.176.1 and the http request also has a different
-             * local ip number at the end. for this reason to validate the ip address in docker we remove the last .number
-             * example in xampp would be the same public and local ip 127.0.0.1 but in docker it would be 192.168.176.x and
-             * 192.168.176.+x for this reason we use a substring validation method to be able to support both enviroments.
-             */
-            if(in_array($publicIP, $localhost) || substr($publicIP, 0, -2) === substr($localIP, 0, -2))
-            {
-                $fileName = ".env.development";
-
-                $production = false;
-            }
-            
-
-            #Open the .env file and read it
-            $dotEnvFile = new SplFileObject(
-                sprintf("%s%s%s",
-                    ROOT_DIR,
-                    SLASH,
-                    $fileName
-                )
-            );
-
-=======
         public function load(bool $isProduction) : void
         {
             #Open the .env file and read it
@@ -72,7 +25,6 @@
             }
 
             $dotEnvFile = new SplFileObject($filePath);
->>>>>>> rebuildtest
 
             #contains the parse values
             $env = [];
@@ -112,11 +64,7 @@
             }
 
             #Merge arrays
-<<<<<<< HEAD
-            $env = array_merge($env, ["PRODUCTION" => $production]);
-=======
             $env = array_merge($env, ["PRODUCTION" => $isProduction]);
->>>>>>> rebuildtest
           
             #Add env variables
             foreach ($env as $key => $value) 
@@ -133,11 +81,7 @@
           
                     if ($value === false) 
                     {
-<<<<<<< HEAD
-                        return "Invalid env key";
-=======
                         return $key;
->>>>>>> rebuildtest
                     }
           
                     return $value;
@@ -148,3 +92,4 @@
             define("EZENV", $env);
         }
     }
+?>

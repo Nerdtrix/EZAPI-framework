@@ -1,12 +1,12 @@
 <?php
+    namespace Core\Mail;
 
-namespace Core\Mail;
-
-class Logger implements ILogger
-{
-    public function log(string $format, ...$values) : void
+    class Logger implements ILogger
     {
-        // Print to console.
-        print(sprintf($format, ...$values) . PHP_EOL);
+        public function log(string $format, ...$values) : void
+        {
+            // Print to console.
+            print(sprintf($format, ...$values) . PHP_EOL);
+        }
     }
-}
+?>
