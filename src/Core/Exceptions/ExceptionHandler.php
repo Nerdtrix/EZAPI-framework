@@ -1,6 +1,7 @@
 <?php
     namespace Core\Exceptions;
     use \Exception;
+<<<<<<< HEAD
     use Core\Request;
 
     class ExceptionHandler extends Exception
@@ -15,4 +16,14 @@
             $this->request = new Request();
         }
         
+=======
+
+
+    class ExceptionHandler extends Exception 
+    {    
+        public function __construct(string $message, int $code)
+        {
+            parent::__construct($message, $code);
+        }
+>>>>>>> rebuildtest
     }

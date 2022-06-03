@@ -3,6 +3,7 @@
 
     class Constant
     {
+<<<<<<< HEAD
         #Errors
         public const ERROR = "error";
         public const ERROR_MESSAGE = "Oops, something went wrong";
@@ -25,4 +26,13 @@
         public const MESSAGE = "message";
         public const SUCCESS = "success";
         public const OTP_SENT = "A one-time password was sent to your email";
+=======
+        public const ERROR = "error";
+        public const CODE = "code";
+        public const MESSAGE = "message";
+        public const SUCCESS = "success";
+        public const RESULT = "result";
+        public const INVALID_JSON_FORMAT = "Invalid Json format";
+        
+>>>>>>> rebuildtest
     }

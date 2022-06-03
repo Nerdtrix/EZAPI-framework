@@ -1,7 +1,10 @@
 <?php
     namespace Core;
     use \SplFileObject;
+<<<<<<< HEAD
     use Core\Helper;
+=======
+>>>>>>> rebuildtest
 
     class EZENV
     {
@@ -10,6 +13,7 @@
          * EZENV is one of many unique features that EZAPI offers. 
          * With this feature you are able to use enviroment variables natively.
          */
+<<<<<<< HEAD
         public static function load() : void
         {
             #use the production .env by default.
@@ -51,6 +55,24 @@
                 )
             );
 
+=======
+        public function load(bool $isProduction) : void
+        {
+            #Open the .env file and read it
+            $filePath = sprintf("%s%s.env", ROOT_DIR, SLASH);
+            
+            #Recreate the files if they don't exists
+            if(!file_exists($filePath))
+            {   
+                $defaultFilePath = sprintf("%s%s.env.example", ROOT_DIR, SLASH);
+
+                $defaultContent = file_get_contents($defaultFilePath);
+
+                file_put_contents($filePath , $defaultContent);
+            }
+
+            $dotEnvFile = new SplFileObject($filePath);
+>>>>>>> rebuildtest
 
             #contains the parse values
             $env = [];
@@ -90,7 +112,11 @@
             }
 
             #Merge arrays
+<<<<<<< HEAD
             $env = array_merge($env, ["PRODUCTION" => $production]);
+=======
+            $env = array_merge($env, ["PRODUCTION" => $isProduction]);
+>>>>>>> rebuildtest
           
             #Add env variables
             foreach ($env as $key => $value) 
@@ -107,7 +133,11 @@
           
                     if ($value === false) 
                     {
+<<<<<<< HEAD
                         return "Invalid env key";
+=======
+                        return $key;
+>>>>>>> rebuildtest
                     }
           
                     return $value;

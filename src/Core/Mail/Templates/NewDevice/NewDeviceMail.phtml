@@ -1,0 +1,85 @@
+<?php
+	/**
+	 * Every html email template must be inlined if it contains css. You can try any website online like this one https://htmlemail.io/inline/
+	 * If your code requires php variables then you must use a namespace.
+	 */
+	namespace Core\Mail\Templates\NewDevice; 
+?>
+
+<!doctype html>
+<html lang="en_US">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title><?= EZENV["APP_NAME"]; ?></title>
+	</head>
+	<style>
+        @media only screen and (max-width: 620px) 
+		{
+            table[class=body] .container {
+                padding: 0 !important;
+                width: 100% !important;
+            }
+
+            table[class=body] .content {
+                padding: 0 !important;
+            }
+
+            table[class=body] .wrapper {
+                padding: 10px !important;
+            }
+
+            table[class=body] h1 {
+                font-size: 28px !important;
+                margin-bottom: 10px !important;
+            }
+
+            table[class=body] p,
+            table[class=body] ul,
+            table[class=body] ol,
+            table[class=body] td,
+            table[class=body] span,
+            table[class=body] a {
+                font-size: 16px !important;
+            }
+        }
+    </style>
+
+	<body style="background-color: #eaebed; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
+		<table class="body" role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; min-width: 100%; background-color: #eaebed; width: 100%;" width="100%" bgcolor="#eaebed">
+			<tr>
+				<td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>
+
+				<td class="container" style="font-family: sans-serif; font-size: 14px; display: block; max-width: 580px; padding: 10px; width: 580px; Margin: 0 auto;" width="580" valign="top">
+
+					<!--Header-->
+					<?php include(sprintf("%s%sheader.html", dirname(__DIR__, 1), DIRECTORY_SEPARATOR)); ?>
+					<!--END Header-->
+
+					<div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
+
+						<?php
+							if(NewDeviceMail::$locale == "en_US")
+							{
+								include(sprintf("%s%sen_US.phtml", dirname(__FILE__), DIRECTORY_SEPARATOR)); 
+							}
+							else if(NewDeviceMail::$locale == "es_US")
+							{
+								include(sprintf("%s%ses_US.phtml", dirname(__FILE__), DIRECTORY_SEPARATOR)); 
+							}
+						?>
+
+					</div>
+
+					<!-- Footer -->
+					<?php include(sprintf("%s%sfooter.html", dirname(__DIR__, 1), DIRECTORY_SEPARATOR)); ?>
+					<!-- END Footer -->
+
+				</td>
+
+				<td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>
+			</tr>
+		</table>
+	</body>
+</html>

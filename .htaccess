@@ -9,7 +9,11 @@ RewriteRule ^(.*)$ public/$1 [L]
 Options All -Indexes
 
 # Block sensitive files from the browser. Since this is a server we do not need to serve any frontend purpose.
+<<<<<<< HEAD
 <Files ~ "\.(env|env.development|env.production|env.example|json|md|gitignore|gitattributes|lock|html|css|png|jpeg|jpg|pdf)$">
+=======
+<Files ~ "\.(env|env.example|json|md|gitignore|gitattributes|lock|html|css|png|jpeg|jpg|pdf)$">
+>>>>>>> rebuildtest
     Order allow,deny
     Deny from all
 </Files>

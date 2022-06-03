@@ -1,0 +1,42 @@
+{
+    "version": "0.2.0",
+    "compounds": [
+        {
+          "name": "Launch debugger",
+          "configurations": ["EZAPI Debug", "PHPUnit debug"],
+          "preLaunchTask": "Start server",
+          "stopAll": true
+        }
+    ],
+    "configurations": [     
+        {
+            "name": "EZAPI Debug",
+            "type": "php",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            "runtimeArgs": [
+                "-dxdebug.mode=debug",
+                "-dxdebug.start_with_request=yes",
+                "-S",
+                "localhost:8080",
+                "-t",
+                "public"
+            ]
+        },
+        {
+            "name": "PHPUnit debug",
+            "type": "php",
+            "request": "launch",
+            "program": "${workspaceFolder}/vendor/bin/phpunit",
+            "cwd": "${workspaceFolder}",
+            "port": 9003,
+            "runtimeArgs": [
+                "-dxdebug.mode=debug",
+                "-dxdebug.start_with_request=yes"
+            ],
+            "args": [
+            //     "tests/AuthServiceTest.php" //Use this to run an specific test.
+             ]
+        }
+    ]
+}

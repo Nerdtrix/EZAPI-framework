@@ -2,6 +2,7 @@
     namespace Core;
 
 
+<<<<<<< HEAD
     class Helper
     {
 
@@ -80,11 +81,19 @@
         }
 
 
+=======
+    class Helper implements IHelper
+    {
+>>>>>>> rebuildtest
         /**
          * @method publicIP
          * @return string
          */
+<<<<<<< HEAD
         public static function publicIP() : string
+=======
+        public function publicIP() : string
+>>>>>>> rebuildtest
         {
             $realIP = "Invalid IP Address";
 
@@ -136,4 +145,110 @@
 
             return $realIP;
         }
+<<<<<<< HEAD
+=======
+
+
+         /**
+         * @param int length
+         * @return int 
+         */
+        public function randomNumber(int $length) : int
+        {
+            $result = "";
+
+            for($i = 0; $i < (int) $length; $i++) 
+            {
+                $result .= mt_rand(0, 9);
+            }
+
+            return (int)$result;
+        }
+
+
+        /**
+         * @return array [name, platform]
+         */
+        public function getBrowserInfo() : object
+        {
+
+            /**
+             * If the browscap.ini is properly configured we will obtain our 
+             * info from there since it is more accurate, otherwise we will 
+             * manually identify the browser.
+             */
+            if (!ini_get('browscap')) 
+            {
+                $browserInfo = get_browser();
+
+                if(!empty($browserInfo->browser) && $browserInfo->browser !== "Default Browser" 
+                && !empty($browserInfo->platform) && $browserInfo->platform !== "unknown")
+                {
+                    return (object)[
+                        "name" => $browserInfo->browser,
+                        "platform" => $browserInfo->platform
+                    ];
+                }
+            }
+
+
+            $platform = "Unknown";
+            $browserName = "Unknown";
+
+            $userAgent = $_SERVER["HTTP_USER_AGENT"];
+
+            $operatingSystem = [
+                '/linux/i'              => "Linux",
+                '/macintosh|mac os x/i' => "Mac OS",
+                '/windows|win32/i'      => "Windows",
+                '/ubuntu/i'             => 'Ubuntu',
+                '/iphone/i'             => 'iPhone',
+                '/ipod/i'               => 'iPod',
+                '/ipad/i'               => 'iPad',
+                '/android/i'            => 'Android',
+                '/blackberry/i'         => 'BlackBerry',
+                '/webos/i'              => 'Mobile'
+            ];
+
+            $browserList = [
+                '/msie/i'       => "Internet explorer",
+                '/IE/i'         => "Internet explorer",
+                '/Edg/i'        => "Microsoft Edge",
+                '/gecko/i'      => "Mozilla Firefox",
+                '/fox/i'        => "Mozilla Firefox",
+                '/safari/i'     => "Safari",
+                '/opera/i'      => "Opera",
+                '/Presto/i'     => "Opera",
+                '/mobile/i'     => "Mobile browser",
+                '/phone/i'      => "Mobile browser",
+                '/Yowser/i'     => "Yandex Browser",
+                '/Ya/i'         => "Yandex Browser",
+                '/Chrome/i'     => "Google Chrome",
+
+                #Debugging tool
+                '/PostmanRuntime/i' => 'Postman'
+            ];
+
+            foreach($operatingSystem as $osKey => $osValue)
+            {
+                if (preg_match($osKey, $userAgent)) 
+                {
+                    $platform = $osValue;
+                }
+            }           
+
+            foreach($browserList as $bKey => $bValue)
+            {
+                if (preg_match($bKey, $userAgent)) 
+                {
+                    $browserName = $bValue;
+                }
+            }   
+           
+            return (object)[
+                "name" => $browserName,
+                "platform" => $platform
+            ];
+        }
+>>>>>>> rebuildtest
     }

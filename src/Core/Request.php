@@ -1,5 +1,6 @@
 <?php
     namespace Core;
+<<<<<<< HEAD
     use \Exception;
     use Core\Constant;
     use Core\Helper;
@@ -11,12 +12,29 @@
 
         #Allowed HTTP methods
         private $_allowedMethods = [
+=======
+    use Core\Exceptions\ApiError;
+    use \Exception;
+
+    class Request implements IRequest
+    {
+        
+        private const INVALID_HTTP_RESPONSE_CODE = "Invalid HTTP response code";      
+
+
+         #Allowed HTTP methods
+         private $_allowedMethods = [
+>>>>>>> rebuildtest
             "POST",
             "GET",
             "PUT",
             "PATCH",
+<<<<<<< HEAD
             "DELETE",
             "OPTIONS"
+=======
+            "DELETE"
+>>>>>>> rebuildtest
         ];
 
         #Allowed HTTP headers
@@ -36,6 +54,7 @@
          * @method headers
          * This method will validate all of the headers sent by the browser and assign our desired headers.
          */
+<<<<<<< HEAD
         public function headers() : void
         {
             #Validate against empty origin values while in production mode
@@ -47,6 +66,18 @@
 
             #Bypass HTTP_ORIGIN while in development mode by assigning the local IP address to the Origin.
             if(!isset($_SERVER["HTTP_ORIGIN"]) && !EZENV["PRODUCTION"])
+=======
+        private function headers() : void
+        {
+            #Validate against empty origin values while in production mode
+            if(!isset($_SERVER["HTTP_ORIGIN"]) && PRODUCTION)
+            {
+                throw new ApiError(Dictionary::httpResponseCode[400]);
+            }
+
+            #Bypass HTTP_ORIGIN while in development mode by assigning the local IP address to the Origin.
+            if(!isset($_SERVER["HTTP_ORIGIN"]) && !PRODUCTION)
+>>>>>>> rebuildtest
             {
                 $_SERVER["HTTP_ORIGIN"] = $_SERVER["REMOTE_ADDR"];
             }
@@ -54,13 +85,18 @@
             #Validate origins even while in development mode.
             if (!in_array($_SERVER["HTTP_ORIGIN"], ALLOWED_ORIGINS) && !ALLOW_ANY_API_ORIGIN)
             {
+<<<<<<< HEAD
                 $this->jsonResponse(400, [Constant::ERROR => Dictionary::httpResponseCode[400]]);
+=======
+                throw new ApiError(Dictionary::httpResponseCode[400]);
+>>>>>>> rebuildtest
             }
 
             #Validate request method
             if(isset($_SERVER["REQUEST_METHOD"]) && !in_array($_SERVER["REQUEST_METHOD"], $this->_allowedMethods))
             { 
                 #method not allowed
+<<<<<<< HEAD
                 $this->jsonResponse(405, [Constant::ERROR => Dictionary::httpResponseCode[405]]);
             }
 
@@ -72,6 +108,19 @@
 
             #Overwrite Content type in development mode to JSON by default.
             if (!isset($_SERVER["CONTENT_TYPE"]) && !EZENV["PRODUCTION"])
+=======
+                throw new ApiError(Dictionary::httpResponseCode[405], 405);
+            }
+
+            #Make sure content type is present while in production mode.
+            if (!isset($_SERVER["CONTENT_TYPE"]) && PRODUCTION)
+            {
+                throw new ApiError(Dictionary::httpResponseCode[415], 415);
+            }
+
+            #Overwrite Content type in development mode to JSON by default.
+            if (!isset($_SERVER["CONTENT_TYPE"]) && !PRODUCTION)
+>>>>>>> rebuildtest
             {
                 $_SERVER["CONTENT_TYPE"] =  $this->_allowedContentType[0];
             }
@@ -79,8 +128,12 @@
             #Validate content type
             if(isset($_SERVER["CONTENT_TYPE"]) && !in_array($_SERVER["CONTENT_TYPE"], $this->_allowedContentType))
             {
+<<<<<<< HEAD
                 die($_SERVER["CONTENT_TYPE"]);
                 $this->jsonResponse(415, [Constant::ERROR => Dictionary::httpResponseCode[415]]);
+=======
+                throw new ApiError(Dictionary::httpResponseCode[415], 415);
+>>>>>>> rebuildtest
             }
 
             #Build header array
@@ -95,9 +148,15 @@
             ];
 
             #Secure the connection with a valid SSL certificate on production.
+<<<<<<< HEAD
             if(EZENV["PRODUCTION"] && EZENV["ENFORCE_SSL"] && $_SERVER["SERVER_PORT"] !== "443")
             {
                 $this->response(495,  [Constant::ERROR => Dictionary::httpResponseCode[495]]);
+=======
+            if(PRODUCTION && EZENV["ENFORCE_SSL"] && $_SERVER["SERVER_PORT"] !== "443")
+            {
+                throw new ApiError(Dictionary::httpResponseCode[495], 495);
+>>>>>>> rebuildtest
             }
 
             #Ensure that headers are not already sent before assigning new headers.
@@ -111,6 +170,7 @@
             }
         }
 
+<<<<<<< HEAD
 
          /**
          * @method response
@@ -157,6 +217,12 @@
          */
         public function jsonInput(bool $sanitize = false) : object
         {
+=======
+        private function body() : mixed
+        {
+            if(!empty($_POST)) return (object)$_POST;
+
+>>>>>>> rebuildtest
             #Get params 
             $input = file_get_contents("php://input");
 
@@ -164,6 +230,7 @@
             $results = json_decode($input);
 
             #Validate Json
+<<<<<<< HEAD
             if (json_last_error() !== JSON_ERROR_NONE) 
             {
                 throw new ApiError(Constant::INVALID_JSON_FORMAT);
@@ -198,10 +265,40 @@
             }
 
             return (object)$inputGet;
+=======
+            if (json_last_error() === JSON_ERROR_NONE)
+            {
+                return $results;
+            }
+            
+            #Anything other than json
+            return $input;     
+        }
+
+
+        public function data() : mixed
+        {
+            #Assign headers
+            $this->headers();
+
+            switch ($_SERVER["REQUEST_METHOD"])
+            {
+                case "GET" : 
+                    return (object)$_GET;
+
+                case "POST" or "PUT" or "DELETE" or "PATCH": 
+                    return $this->body();
+
+                default:
+                    return null;
+
+            }
+>>>>>>> rebuildtest
         }
 
 
         /**
+<<<<<<< HEAD
          * 
          */
         public function postInput(bool $sanitize = false) : object
@@ -220,4 +317,52 @@
 
             return (object)$inputPost;
         }
+=======
+         * @method response
+         * @param int code 
+         * @param mixed response
+         * @throws Exceptions
+         */
+        public function response(mixed $response, int $code = 200) : void
+        {
+            #Validate response code
+            if(!array_key_exists($code, Dictionary::httpResponseCode)) 
+                throw new Exception (self::INVALID_HTTP_RESPONSE_CODE);
+
+            #Add return type
+            header(sprintf("Content-Type: %s", Dictionary::contentType["json"]));  
+            
+            #Add HTTP response code
+            http_response_code($code);
+
+            //see this url for json structure https://jsonapi.org/examples/
+            if($code >= 400)
+            {
+                $response = [
+                    Constant::ERROR => [
+                        Constant::CODE => $code,
+                        Constant::MESSAGE => $response
+                    ]
+                ];
+            }
+            
+            if($code == 200)
+            {
+                $response = [
+                    Constant::RESULT => $response
+                ];
+            }
+
+            #Convert array to object
+            $response = json_encode($response);            
+
+            #Validate Json
+            if (json_last_error() !== JSON_ERROR_NONE) 
+                throw new Exception(Constant::INVALID_JSON_FORMAT);
+            
+            #Return values
+            exit($response);
+        }
+
+>>>>>>> rebuildtest
     }

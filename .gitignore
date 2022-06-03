@@ -1,6 +1,14 @@
 # Ignore
+<<<<<<< HEAD
 .env.development
 .env.production
 notes
 composer.lock
 /vendor/
+=======
+.env
+notes
+composer.lock
+/vendor/
+*.cache
+>>>>>>> rebuildtest
