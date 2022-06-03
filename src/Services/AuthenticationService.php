@@ -87,7 +87,7 @@
 
       if($isNewDevice || $rememberMe && $this->m_userAuthModel->isTwoFactorAuth)
       {
-        // #Send a new OTP to the email address
+        #Send a new OTP to the email address
         // if($this->m_web2FaService->createOtpSessionToken(userId: $this->m_userAuthModel->id))
         // {
         //   throw new ApiError ("otp_validation_required");
@@ -121,6 +121,4 @@
 
       return $this->m_userModel;
     }
-
-   
   }

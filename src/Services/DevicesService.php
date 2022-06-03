@@ -6,7 +6,6 @@
     use Exception;
     use Models\DevicesModel;
     use Repositories\{IDevicesRepository};
-    use Core\Language\ITranslator;
     use Core\Mail\Templates\NewDevice\NewDeviceMail;
     
     
@@ -16,9 +15,6 @@
     private IDevicesRepository $m_devicesRepository;
 
     private EZMAIL $m_email;
-
-    private ITranslator $m_lang;
-
 
     #Core
     private ICookie $m_cookie;
@@ -38,15 +34,13 @@
         ICookie $cookie, 
         IHelper $helper, 
         ICrypto $crypto, 
-        EZMAIL $email,
-        ITranslator $language)
+        EZMAIL $email)
     {
       $this->m_devicesRepository = $devicesRepository;
       $this->m_cookie = $cookie;
       $this->m_helper = $helper;
       $this->m_crypto = $crypto;
       $this->m_email = $email;
-      $this->m_lang = $language;
     }
     
 
@@ -160,12 +154,21 @@
     /**
      * @param string name
      * @param string email
+     * @param string locale
      * This method sends a new email to the user. 
      */
     public function sendNewDeviceDetectedEmail(string $name, string $email, string $locale) : void
     {
         $this->m_email->to = [$name => $email];
-        $this->m_email->subject = $this->m_lang->translate("login_from_a_new_device_detected");
+
+        if($locale == "en_US")
+        {
+            $this->m_email->subject = "Login from a new device detected";
+        }
+        else if($locale == "es_US")
+        {
+            $this->m_email->subject = "Inicio de sesión desde un nuevo dispositivo detectado";
+        }        
 
         $this->m_email->htmlTemplate = sprintf("NewDevice%sNewDeviceMail.phtml", SLASH);
 

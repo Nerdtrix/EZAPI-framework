@@ -1,8 +1,6 @@
 <?php
 	namespace Core\Mail\Templates\NewDevice;
 
-use Core\EZENV;
-
 	class NewDeviceMail
 	{
 		public static ?string $date;

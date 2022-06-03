@@ -3,7 +3,7 @@
 	 * Every html email template must be inlined if it contains css. You can try any website online like this one https://htmlemail.io/inline/
 	 * If your code requires php variables then you must use a namespace.
 	 */
-	namespace Core\Mail\Templates\NewDevice; 
+	namespace Core\Mail\Templates\Web2FA; 
 ?>
 
 <!doctype html>
@@ -60,11 +60,11 @@
 					<div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
 
 						<?php
-							if(NewDeviceMail::$locale == "en_US")
+							if(Web2FAMail::$locale == "en_US")
 							{
 								include(sprintf("%s%sen_US.phtml", dirname(__FILE__), DIRECTORY_SEPARATOR)); 
 							}
-							else if(NewDeviceMail::$locale == "es_US")
+							else if(Web2FAMail::$locale == "es_US")
 							{
 								include(sprintf("%s%ses_US.phtml", dirname(__FILE__), DIRECTORY_SEPARATOR)); 
 							}

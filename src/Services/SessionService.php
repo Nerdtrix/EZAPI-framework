@@ -38,6 +38,11 @@
         }
 
 
+        /**
+         * @param int $userId
+         * @param bool $rememberMe
+         * @return bool
+         */
         public function create(int $userId, bool $rememberMe) : bool
         {
             #Session random hash

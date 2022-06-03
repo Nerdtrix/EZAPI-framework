@@ -1,12 +1,9 @@
 <?php
   namespace Core;
-  use Core\Language\ITranslator;
-
   class Router 
   {
     public IRequest $request;
 
-    public ITranslator $lang;
 
     // public function __construct(?IRequest $request = null, ?ITranslator $language = null) 
     // {
