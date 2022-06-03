@@ -1,12 +1,10 @@
 <?php
     namespace Core;
 
-
     class Helper implements IHelper
     {
         /**
          * @method publicIP
-         * @return string
          */
         public function publicIP() : string
         {
@@ -164,3 +162,4 @@
             ];
         }
     }
+?>

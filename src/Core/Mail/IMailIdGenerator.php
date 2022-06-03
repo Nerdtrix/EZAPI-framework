@@ -1,8 +1,8 @@
 <?php
+    namespace Core\Mail;
 
-namespace Core\Mail;
-
-interface IMailIdGenerator
-{
-    public function generate() : string;
-}
+    interface IMailIdGenerator
+    {
+        public function generate() : string;
+    }
+?>

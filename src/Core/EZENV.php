@@ -92,3 +92,4 @@
             define("EZENV", $env);
         }
     }
+?>

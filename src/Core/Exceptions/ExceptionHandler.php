@@ -10,3 +10,4 @@
             parent::__construct($message, $code);
         }
     }
+?>

@@ -1,7 +1,7 @@
 <?php
     namespace Core;
-    use Core\DI;
     use Src\Config;
+    use Core\DI;
     use Core\Exceptions\ApiError;
     
 
@@ -76,3 +76,4 @@
             $routeInstance->$method($requestData);
         }
     }
+?>

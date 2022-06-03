@@ -1,17 +1,9 @@
 <?php
   namespace Core;
+
   class Router 
   {
     public IRequest $request;
-
-
-    // public function __construct(?IRequest $request = null, ?ITranslator $language = null) 
-    // {
-    //   //Get from singleton later
-    //   $this->request = $request;
-
-    //   $this->lang = $language;
-    // }
 
     public function __construct()
     {
@@ -28,3 +20,4 @@
       unset($this->request);
     }
   }
+?>

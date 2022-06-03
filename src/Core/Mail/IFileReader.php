@@ -1,8 +1,9 @@
 <?php
-
-namespace Core\Mail;
+    namespace Core\Mail;
 
     interface IFileReader
     {
         public function read(string $path) : string;
     }
+
+?>
