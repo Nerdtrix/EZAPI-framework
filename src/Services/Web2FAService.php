@@ -7,43 +7,61 @@
     use Repositories\IWeb2FARepository;
     use Core\Mail\EZMAIL;
     use Core\Mail\Templates\Web2FA\Web2FAMail;
+    use Core\Language\ITranslator;
     
     
   class Web2FAService implements IWeb2FAService
   {
-      #core
-      private Ihelper $m_helper;
+    private Ihelper $m_helper;
+    private IWeb2FARepository $m_web2FaRepository;
+    private ISessionService $m_sessionService;
+    private Web2FAModel $m_web2FAModel;
+    private EZMAIL $m_email;
+    private ITranslator $m_lang;
+    private const OTP_EXPIRATION_MINUTES = 20;
 
-      #repositories
-      private IWeb2FARepository $m_web2FaRepository;
-
-      private Web2FAModel $m_web2FAModel;
-
-      private EZMAIL $m_email;
-
-      private const OTP_EXPIRATION_MINUTES = 20;
-
-    public function __construct(Ihelper $helper, IWeb2FARepository $web2FaRepository, EZMAIL $email)
+    public function __construct(
+        Ihelper $helper, 
+        IWeb2FARepository $web2FaRepository, 
+        EZMAIL $email, 
+        ISessionService $sessionService,
+        ITranslator $translator)
     {
         $this->m_helper = $helper;
-
         $this->m_web2FaRepository = $web2FaRepository;
-
         $this->m_email = $email;
+        $this->m_sessionService = $sessionService;
+        $this->m_lang = $translator;
     }
 
-    public function createOtpMailSessionToken(int $userId) : bool
+    public function createOtpMailSessionToken(object $userInfo, bool $rememberMe) : bool
     {
+        #Create a random OTP
         $otp = $this->m_helper->randomNumber(6);
 
-        //todo
-        //save otp
-        //create cookie
+        #Minutes calculation
+        $timestamp = CURRENT_TIME + (self::OTP_EXPIRATION_MINUTES * 60);
 
+        #expiration time
+        $expirationTime = date(DATE_FORMAT, $timestamp);  
+
+        #Create invalidated session.
+        if($this->m_sessionService->create(userId: $userInfo->id, isValidated: false, rememberMe: $rememberMe))
+        {
+            if(!$this->m_web2FaRepository->saveOtp(
+                userId: $userInfo->id, 
+                otp: $otp, 
+                expiresAt: $expirationTime))
+            {
+                throw new ApiError("unable_to_generate_OTP");
+            }
+        }
+        
+        #Send OTP email
         $this->sendOtpEmail(
-            name: "",
-            email: "",
-            locale: "",
+            name: $userInfo->fName,
+            email: $userInfo->email,
+            locale: $userInfo->locale,
             otp: $otp
         );
 
@@ -62,20 +80,12 @@
     {
         $this->m_email->to = [$name => $email];
 
-        if($locale == "en_US")
-        {
-            $this->m_email->subject = "Your one-time verification code";
-        }
-        else if($locale == "es_US")
-        {
-            $this->m_email->subject = "Su código de verificación de un solo uso";
-        }        
+        $this->m_email->subject = $this->m_lang->translate("your_one_time_verification_code");
 
         $this->m_email->htmlTemplate = sprintf("Web2FA%sWeb2FAMail.phtml", SLASH);
 
         #Fill template variables
         Web2FAMail::$otp = $otp;
-        Web2FAMail::$locale = $locale;
       
         #Send mail
         $this->m_email->send();
@@ -120,28 +130,6 @@
         return false;
     }
 
-    //todo
-    public function createOtpSMSSessionToken(int $userId) : bool
-    {
-        return true;
-    }
-
-    //todo
-    public function validateOTPSMSToken(int $otp): bool
-    {
-        return true;
-    }
-
-    //todo
-    public function createOtpAuthAPPSessionToken(int $userId) : bool
-    {
-        return true;
-    }
-
-    //todo
-    public function validateOTPAuthAPPToken(int $otp): bool
-    {
-        return true;
-    }
+   
   }
 ?>

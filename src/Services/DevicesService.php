@@ -7,6 +7,7 @@
     use Models\DevicesModel;
     use Repositories\{IDevicesRepository};
     use Core\Mail\Templates\NewDevice\NewDeviceMail;
+    use Core\Language\ITranslator;
     
     
   class DevicesService implements IDevicesService
@@ -20,6 +21,7 @@
     private ICookie $m_cookie;
     private IHelper $m_helper;
     private ICrypto $m_crypto;
+    private ITranslator $m_lang;
     
     #constant
     private const COOKIE_NAME = "device_token";
@@ -34,6 +36,7 @@
         ICookie $cookie, 
         IHelper $helper, 
         ICrypto $crypto, 
+        ITranslator $translator,
         EZMAIL $email)
     {
       $this->m_devicesRepository = $devicesRepository;
@@ -41,6 +44,7 @@
       $this->m_helper = $helper;
       $this->m_crypto = $crypto;
       $this->m_email = $email;
+      $this->m_lang = $translator;
     }
     
 
@@ -161,14 +165,7 @@
     {
         $this->m_email->to = [$name => $email];
 
-        if($locale == "en_US")
-        {
-            $this->m_email->subject = "Login from a new device detected";
-        }
-        else if($locale == "es_US")
-        {
-            $this->m_email->subject = "Inicio de sesión desde un nuevo dispositivo detectado";
-        }        
+        $this->m_email->subject = $this->m_lang->translate("login_from_new_device");
 
         $this->m_email->htmlTemplate = sprintf("NewDevice%sNewDeviceMail.phtml", SLASH);
 

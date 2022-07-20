@@ -48,7 +48,6 @@
      */
     public function authenticate(string $usernameOrEmail, string $password, bool $rememberMe) : object
     {
-
       #Find by email if provided a valid email
       if(filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL))
       {
@@ -88,12 +87,12 @@
       if($isNewDevice || $rememberMe && $this->m_userAuthModel->isTwoFactorAuth)
       {
         #Send a new OTP to the email address
-        // if($this->m_web2FaService->createOtpSessionToken(userId: $this->m_userAuthModel->id))
-        // {
-        //   throw new ApiError ("otp_validation_required");
-        // }
+        if($this->m_web2FaService->createOtpMailSessionToken(userInfo: $this->m_userAuthModel, rememberMe: $rememberMe))
+        {
+          throw new ApiError ("otp_validation_required");
+        }
 
-        // throw new ApiError ("unable_to_create_OTP_session");
+        throw new ApiError ("unable_to_create_OTP_session");
       }
 
       
@@ -112,7 +111,7 @@
 
 
       #Create session
-      if(!$this->m_sessionService->create(userId: $this->m_userAuthModel->id, rememberMe: $rememberMe))
+      if(!$this->m_sessionService->create(userId: $this->m_userAuthModel->id, isValidated: true, rememberMe: $rememberMe))
       {
         throw new ApiError ("unable_to_authenticate");
       }
@@ -120,5 +119,11 @@
       $this->m_userModel = $this->m_userRepository->getById(userId: $this->m_userAuthModel->id);
 
       return $this->m_userModel;
+    }
+
+
+    public function verifyOTP(string $usernameOrEmail, string $otp) : object 
+    {
+      return (object)[];
     }
   }

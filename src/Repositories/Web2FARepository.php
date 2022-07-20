@@ -7,12 +7,20 @@
     class Web2FARepository implements IWeb2FARepository
     {
         private IMysql $m_db;
-        private string $table = "otp";
+        private string $table = "web2fa";
         
 
         public function __construct(IMysql $mySql)
         {
             $this->m_db = $mySql;
+        }
+
+        public function saveOtp(int $userId, int $otp, string $expiresAt) : bool
+        {
+            return $this->m_db->insert(
+                query: "INSERT INTO {$this->table} SET userId = ?, otp = ?, expiresAt = ?",
+                bind: [$userId, $otp, $expiresAt]
+            );
         }
 
         /**

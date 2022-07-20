@@ -18,7 +18,7 @@
 
 
         /**
-         * @api route /
+         * @api route /authentication/ or just /
          * @method get
          * @return object
          */
@@ -66,13 +66,51 @@
         }
 
 
-        public function otpRequest(object $input) : void
+        /**
+         * @api route /authentication/verifyOTP
+         * @method post
+         * @return object
+         * @throws ApiError
+         */
+        public function verifyOTP(object $input) : void
+        {
+            if(is_null($input))
+            {
+                throw new ApiError("Invalid request body");
+            }
+            
+            if(empty($input->otp))
+            {
+                throw new ApiError("otp_is_required");
+            }
+
+            $response = $this->m_authService->verifyOTP(
+                usernameOrEmail: $input->usernameOrEmail,
+                otp: $input->otp
+            );
+
+            $this->request->response($response);
+        }
+
+        public function getOTP(object $input) : void
         {
             
         }
 
-        public function logout() : void {}
+        public function register() : void 
+        {
 
-        public function extend() : void {}
+        }
+        
+
+        public function logout() : void 
+        {
+
+        }
+
+        public function extend() : void 
+        {
+            
+        }
     }
 ?>

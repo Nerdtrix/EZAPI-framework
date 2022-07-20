@@ -20,6 +20,9 @@
             \Core\Mail\IMailBuilder::class => \Core\Mail\MailBuilder::class,
             \Core\Mail\ILogger::class => \Core\Mail\EmptyLogger::class, //use the Logger class for debug
             \Core\Mail\IFileReader::class => \Core\Mail\FileReader::class,
+
+            #language
+            \Core\Language\ITranslator::class => \Core\Language\Translator::class,
             
             #Repositories
             \Repositories\IWeb2FARepository::class => \Repositories\Web2FARepository::class,

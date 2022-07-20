@@ -41,9 +41,10 @@
         /**
          * @param int $userId
          * @param bool $rememberMe
+         * @param bool $isValidated
          * @return bool
          */
-        public function create(int $userId, bool $rememberMe) : bool
+        public function create(int $userId, bool $isValidated, bool $rememberMe) : bool
         {
             #Session random hash
             $sessionToken = $this->m_crypto->randomToken();
@@ -82,6 +83,7 @@
               userId: $userId,
               deviceId: $this->m_deviceService->getDeviceId(),
               token: $sessionToken,
+              isValidated: $isValidated,
               expiresAt: $sessionEnd);
 
             if($create)

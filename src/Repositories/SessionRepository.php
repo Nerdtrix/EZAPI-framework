@@ -15,11 +15,11 @@
             $this->m_db = $mySql;
         }
 
-        public function create(int $userId, int $deviceId, string $token, string $expiresAt) : bool
+        public function create(int $userId, int $deviceId, string $token, bool $isValidated, string $expiresAt) : bool
         {
             return $this->m_db->insert(
-                query: "INSERT INTO {$this->table} SET userId = ?, deviceId = ?, token = ?, expiresAt = ?",
-                bind: [$userId, $deviceId, $token, $expiresAt]
+                query: "INSERT INTO {$this->table} SET userId = ?, deviceId = ?, token = ?, expiresAt = ?, isValidated = ?",
+                bind: [$userId, $deviceId, $token, $expiresAt, $isValidated]
             );
         }
 
