@@ -1,7 +1,7 @@
 <?php
 	namespace Core\Mail\Templates\NewDevice;
 
-	class NewDeviceMail
+	class LoginAttempt
 	{
 		public static ?string $date;
 		public static ?string $browser;

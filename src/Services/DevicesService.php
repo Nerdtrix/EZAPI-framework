@@ -8,6 +8,7 @@
     use Repositories\{IDevicesRepository};
     use Core\Mail\Templates\NewDevice\NewDeviceMail;
     use Core\Language\ITranslator;
+    use Core\Mail\Templates\NewDevice\LoginAttempt;
     
     
   class DevicesService implements IDevicesService
@@ -175,10 +176,41 @@
         NewDeviceMail::$browser = $brower->name;
         NewDeviceMail::$platform = $brower->platform;
         NewDeviceMail::$ipAddress = $this->m_helper->publicIP();
-        NewDeviceMail::$locale = $locale;
       
         $this->m_email->send();
     }
+
+    /**
+     * @param string name
+     * @param string email
+     */
+    public function sendLoginAttempsEmail(string $name, string $email): void
+    {
+      $this->m_email->to = [$name => $email];
+
+      $this->m_email->subject = $this->m_lang->translate("too_many_login_attempts");
+
+      $this->m_email->htmlTemplate = sprintf("LoginAttempt%sLoginAttemptMail.phtml", SLASH);
+
+      $brower = $this->m_helper->getBrowserInfo();
+
+      #Fill template variables
+      LoginAttempt::$date = date("m/d/Y H:i:s", strtotime(TIMESTAMP));
+      LoginAttempt::$browser = $brower->name;
+      LoginAttempt::$platform = $brower->platform;
+      LoginAttempt::$ipAddress = $this->m_helper->publicIP();
+    
+      #Send mail
+      $this->m_email->send();
+    }
+
+    public function sendAccountLockedEmail(string $name, string $email): void
+    {
+      
+    }
+
+
+    
 
   }
 ?>

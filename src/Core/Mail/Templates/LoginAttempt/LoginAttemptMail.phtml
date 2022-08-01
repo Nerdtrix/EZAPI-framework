@@ -65,8 +65,8 @@
 						<!-- PreHeader. A preheader is a preview of the email content. It is recommended to keep it under 100 characters but up to 250 are allowed -->
 						<span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; visibility: hidden; width: 0;">
 							<p>
-								<?= $lang->translate("we_noticed_you_recently_logged_in")?>.
-							</p>
+                                <?= $lang->translate("we_recently_received_multiple_failed")?>
+                            </p>
 						</span>
 						<!-- END preHeader -->
 							
@@ -75,48 +75,43 @@
 							<tr>
 								<td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">	
 									<p>
-										<?= $lang->translate("we_noticed_you_recently_logged_in")?>
-									</p>
+                                        <?= $lang->translate("we_recently_received_multiple_failed")?>
+                                    </p>
 									<h4>
-										<?= $lang->translate("here_are_the_details")?>
-									</h4>
+                                        <?= $lang->translate("here_are_the_details")?>
+                                    </h4>
 									<ul>
 										<li>
 											<strong>
 												<?= $lang->translate("date")?>:
 											</strong> 
-											<?= NewDeviceMail::$date ?>
+											<?= LoginAttempt::$date ?>
 										</li>
 										<li>
 											<strong>
 												<?= $lang->translate("device")?>:
 											</strong> 
-											<?= NewDeviceMail::$browser ?>
+											<?= LoginAttempt::$browser ?>
 										</li>
 										<li>
 											<strong>
 												<?= $lang->translate("platform")?>:
 											</strong> 
-											<?= NewDeviceMail::$platform ?>
+											<?= LoginAttempt::$platform ?>
 										</li>
 										<li>
 											<strong>
 												<?= $lang->translate("ip_address")?>:
 											</strong> 
-											<?= NewDeviceMail::$ipAddress ?>
+											<?= LoginAttempt::$ipAddress ?>
 										</li>
 									</ul>
 									<p>
-										<?= $lang->translate("if_this_was_you")?>
-									</p><br>
-									<h4>
-										<strong>
-											<?= $lang->translate("why_did_we_send_this")?>
-										</strong>
-									</h4>
+                                        <?= $lang->translate("if_you_do_not_recognize_this_address")?>
+                                    </p><br>
 									<p>
-										<?= $lang->translate("we_did_not_recognize_this_device")?>.
-									</p>
+                                        <?= $lang->translate("if_this_was_you_ignore")?>
+                                    </p>
 								</td>
 							</tr>
 						</table>

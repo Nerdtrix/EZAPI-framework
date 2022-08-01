@@ -1,6 +1,7 @@
 <?php
   namespace Services;
   use Core\Exceptions\ApiError;
+  
   use Models\{UserModel, UserAuthenticationModel};
   use Repositories\{IUserAuthenticationRepository, IUserRepository};
   
@@ -19,6 +20,11 @@
     private IDevicesService $m_deviceService;
     private IWeb2FAService $m_web2FaService;
     private ISessionService $m_sessionService;
+
+    #Password settings
+    private const PSWCOUNTER = "attempts";//Cookie name
+    private int $alertOnAttempts = 3; //Sends an email of failed login attempts
+    private int $lockAccountOn = 5; //locks account on 5 failed login attempts and sends an email
     
   
     #Constructor
@@ -62,12 +68,6 @@
       {
         throw new ApiError("user_not_found");
       }
-      
-      #Checking password input against password hash
-      if(!password_verify($password, $this->m_userAuthModel->password))
-      {
-        throw new ApiError("invalid_username_or_password");
-      }
 
       #Check if the account is banned
       if($this->m_userAuthModel->status == "banned")
@@ -79,6 +79,54 @@
       if($this->m_userAuthModel->status == "inactive")
       {
         throw new ApiError ("account_inactive");
+      }
+
+      #Check if the account is inactive
+      if($this->m_userAuthModel->status == "blocked")
+      {
+        throw new ApiError ("account_inactive");
+      }
+      
+      #Checking password input against password hash
+      if(!password_verify($password, $this->m_userAuthModel->password))
+      {
+        #Record the amount of times the user tries to login.
+        $failCount = 1;
+
+        if($this->m_cookie->exits(self::PSWCOUNTER))
+        {
+          $failCount += (int)$this->m_cookie->get(self::PSWCOUNTER);
+        }
+
+        $this->m_cookie->set(
+          name: self::PSWCOUNTER,
+          value: $failCount,
+          cookieExpiration: 0);
+
+        if($failCount == $this->alertOnAttempts)
+        {
+          $this->m_deviceService->sendLoginAttempsEmail(
+            name: $this->m_userAuthModel->fname, 
+            email: $this->m_userAuthModel->email);
+        }
+
+        #lock account
+        if($failCount == $this->lockAccountOn)
+        {
+          //TODO update account status to blocked
+
+          #Send email
+          $this->m_deviceService->sendAccountLockedEmail(
+            name: $this->m_userAuthModel->fname, 
+            email: $this->m_userAuthModel->email);
+
+          #delete counter cookie
+          $this->m_cookie->delete(self::PSWCOUNTER);
+          
+          throw new ApiError("account_locked_for_too_may_attempts");
+        }
+
+        throw new ApiError("invalid_username_or_password");
       }
 
       $isNewDevice = $this->m_deviceService->isNewDevice();
@@ -122,6 +170,8 @@
       return $this->m_userModel;
     }
 
+    
+
 
     /**
      * @param int otp
@@ -153,16 +203,15 @@
     }
 
 
-
-
-
-
     
     public function resendOTP() : bool
     {
       return $this->m_web2FaService->resendOTPMail();
     }
 
+    /**
+     * getter
+     */
     public function isLogged() : bool
     {
       return $this->m_sessionService->isValid();
