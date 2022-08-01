@@ -15,9 +15,8 @@
     #Repositories
     private IDevicesRepository $m_devicesRepository;
 
-    private EZMAIL $m_email;
-
     #Core
+    private EZMAIL $m_email;
     private ICookie $m_cookie;
     private IHelper $m_helper;
     private ICrypto $m_crypto;

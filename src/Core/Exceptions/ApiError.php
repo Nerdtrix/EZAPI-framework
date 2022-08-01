@@ -3,7 +3,7 @@
     use Core\{Dictionary, Constant};
     use \Exception;
 
-    class ApiError extends ExceptionHandler
+    class ApiError extends Exception 
     {
         private const EXCEPTION = "exception";
         private const LOCATION = "location";
@@ -12,6 +12,8 @@
 
         public function __construct(string $errorMessage, int $httpCode = 400) 
         {
+            parent::__construct($errorMessage, $httpCode);
+
             #Add return type
             header(sprintf("Content-Type: %s", Dictionary::contentType["json"]));  
             
@@ -19,16 +21,7 @@
             http_response_code($httpCode);
 
             //see this url for json structure https://jsonapi.org/examples/
-            if (PRODUCTION)
-            {
-                $response = [
-                    Constant::ERROR => [
-                        Constant::CODE => $httpCode,
-                        Constant::MESSAGE => $errorMessage
-                    ]
-                ];
-            } 
-
+            
             #Add extra details while not in production mode
             if (!PRODUCTION) 
             {
@@ -39,6 +32,15 @@
                         self::EXCEPTION => get_class($this),
                         self::LOCATION => $this->getFile(),
                         self::LINE => $this->getLine()
+                    ]
+                ];
+            }
+            else
+            {
+                $response = [
+                    Constant::ERROR => [
+                        Constant::CODE => $httpCode,
+                        Constant::MESSAGE => $errorMessage
                     ]
                 ];
             }       

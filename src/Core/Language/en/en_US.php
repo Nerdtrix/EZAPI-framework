@@ -1,6 +1,7 @@
 <?php
 
 return [
+    "hello_world"                                   => "Hello world",
     "login_from_new_device"                         => "Login from a new device detected",
     "your_one_time_verification_code"               => "Your one-time verification code",
     "do_not_share_this_password"                    => "Do not share this One Time Password with anyone.",

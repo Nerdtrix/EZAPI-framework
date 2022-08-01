@@ -10,5 +10,10 @@
         function extend() : bool;
 
         function delete() : bool;
+
+        function userId() : int;
+
+
+        function validateOtpSession(int $userId) : bool;
     }
 ?>

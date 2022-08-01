@@ -23,7 +23,6 @@
 
     try
     {
-        //Check server requirements before instantiation.
 
         #Composer path
         $composerPath = sprintf(

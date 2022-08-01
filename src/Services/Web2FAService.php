@@ -4,7 +4,7 @@
     use Core\Exceptions\ApiError;
     use Core\Ihelper;
     use Models\Web2FAModel;
-    use Repositories\IWeb2FARepository;
+    use Repositories\{IWeb2FARepository, IUserRepository};
     use Core\Mail\EZMAIL;
     use Core\Mail\Templates\Web2FA\Web2FAMail;
     use Core\Language\ITranslator;
@@ -15,6 +15,7 @@
     private Ihelper $m_helper;
     private IWeb2FARepository $m_web2FaRepository;
     private ISessionService $m_sessionService;
+    private IUserRepository $m_userRepository;
     private Web2FAModel $m_web2FAModel;
     private EZMAIL $m_email;
     private ITranslator $m_lang;
@@ -23,18 +24,20 @@
     public function __construct(
         Ihelper $helper, 
         IWeb2FARepository $web2FaRepository, 
+        IUserRepository $userRepository,
         EZMAIL $email, 
         ISessionService $sessionService,
         ITranslator $translator)
     {
         $this->m_helper = $helper;
+        $this->m_userRepository = $userRepository;
         $this->m_web2FaRepository = $web2FaRepository;
         $this->m_email = $email;
         $this->m_sessionService = $sessionService;
         $this->m_lang = $translator;
     }
 
-    public function createOtpMailSessionToken(object $userInfo, bool $rememberMe) : bool
+    public function createOtpMailSessionToken(object $userInfo, bool $rememberMe, bool $isNewDevice) : bool
     {
         #Create a random OTP
         $otp = $this->m_helper->randomNumber(6);
@@ -51,6 +54,7 @@
             if(!$this->m_web2FaRepository->saveOtp(
                 userId: $userInfo->id, 
                 otp: $otp, 
+                isNewDevice: $isNewDevice,
                 expiresAt: $expirationTime))
             {
                 throw new ApiError("unable_to_generate_OTP");
@@ -65,9 +69,43 @@
             otp: $otp
         );
 
+        return true;
+    }
+
+
+    public function resendOTPMail() : bool
+    {
+        #Create a random OTP
+        $otp = $this->m_helper->randomNumber(6);
+
+        #Minutes calculation
+        $timestamp = CURRENT_TIME + (self::OTP_EXPIRATION_MINUTES * 60);
+
+        #expiration time
+        $expirationTime = date(DATE_FORMAT, $timestamp); 
+
+        if(!$this->m_web2FaRepository->updateOtpByUserId(
+            userId: $this->m_sessionService->userId(), 
+            otp: $otp, 
+            expiresAt: $expirationTime))
+        {
+            throw new ApiError("unable_to_generate_OTP");
+        }
+
+        #user info
+        $userInfo = $this->m_userRepository->getById(
+                userId: $this->m_sessionService->userId());
+
+        $this->sendOtpEmail(
+            name: $userInfo->fName,
+            email: $userInfo->email,
+            locale: $userInfo->locale,
+            otp: $otp
+        );
 
         return true;
     }
+
 
     /**
      * @param string $name
@@ -95,41 +133,45 @@
 
     /**
      * @param int otp
-     * @return bool
+     * @return Web2FAModel
+     * @throws ApiError
      */
-    public function validateOTPMailToken(int $otp): bool
+    public function validateOTP(int $otp): Web2FAModel
     {
         #Find record
-        $this->m_web2FAModel = $this->m_web2FaRepository->getByOtpId(token: $otp);
+        $this->m_web2FAModel = $this->m_web2FaRepository->getByOtp(otp: $otp);
 
         if(empty($this->m_web2FAModel->id))
         {
-            throw new ApiError("invalid_OTP");
+            throw new ApiError("invalid_otp");
         }
 
-        $timestamp = CURRENT_TIME + (self::OTP_EXPIRATION_MINUTES * 60);
-        $expirationTime = date(DATE_FORMAT, $timestamp);
+        #Calculate expiration time
+        $expirationTime = CURRENT_TIME + (self::OTP_EXPIRATION_MINUTES * 60);
 
         #Validate time
-        if(strtotime($expirationTime) > strtotime(CURRENT_TIME))
+        if(strtotime(CURRENT_TIME) > $expirationTime)
         {
-            throw new ApiError("OTP_expired");
+            throw new ApiError("expired_otp");
+        }
+        
+        #update session
+        if(!$this->m_sessionService->validateOtpSession(userId: $this->m_web2FAModel->userId))
+        {
+            throw new ApiError ("unable_to_authenticate");
         }
 
-        #Validate and delete
-        if($this->m_web2FAModel->token == $otp)
-        {
-            #delete token
-            $this->m_web2FaRepository->deleteByOtpId(token: $otp);
+        #delete token
+        $this->m_web2FaRepository->deleteByOtp(otp: $otp);
 
-            #Validated
-            return true;
-        }
+        #Validated
+        return  $this->m_web2FAModel;
 
-        #Invalid
-        return false;
+        throw new ApiError("unable_to_authenticate");
     }
+
 
    
   }
+
 ?>

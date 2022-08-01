@@ -1,19 +1,35 @@
 <?php
     namespace Controllers;
-    use Core\Router;
+    use Services\{IUserService};
+    use Core\Exceptions\ApiError;
+    use Core\{IRequest};
+    use Attributes\Authorize;
 
-    class User extends Router
+    #[Authorize]
+    class User
     {
-        public function __construct()
+        protected IUserService $m_userService;
+        private IRequest $m_request;
+
+        public function __construct(IRequest $request, IUserService $userService)
         {
-            parent::__construct();
+            $this->m_userService = $userService;
+            $this->m_request = $request;
         }  
 
+        /** @api route /user/info
+         * @method GET
+         * @return object
+         * @throws ApiError
+         */
         public function info() : void
         {
+            $response = $this->m_userService->userInfo();
 
+            $this->m_request->response($response);
         }
 
+        
         public function update() : void
         {
 

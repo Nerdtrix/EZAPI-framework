@@ -1,6 +1,7 @@
 <?php
 
 return [
+    "hello_world"                                   => "Hola mundo",
     "login_from_new_device"                         => "Inicio de sesión desde un nuevo dispositivo detectado",
     "your_one_time_verification_code"               => "Su código de verificación de un solo uso",
     "do_not_share_this_password"                    => "No comparta esta contraseña de un solo uso con nadie",

@@ -33,9 +33,10 @@
 
             #Services
             \Services\ISessionService::class => \Services\SessionService::class,
-            \Services\IAuthenticationService::class =>  \Services\AuthenticationService::class,
+            \Services\IAuthService::class =>  \Services\AuthService::class,
             \Services\IWeb2FAService::class => \Services\Web2FAService::class,
             \Services\IDevicesService::class => \Services\DevicesService::class,
+            \Services\IUserService::class => \Services\UserService::class
         ];
     }
 ?>

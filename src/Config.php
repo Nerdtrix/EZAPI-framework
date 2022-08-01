@@ -3,6 +3,7 @@
 
     class Config
     {
+        
         public function load() : void
         {
             define("SLASH", DIRECTORY_SEPARATOR);

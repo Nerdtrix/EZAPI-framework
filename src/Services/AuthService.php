@@ -5,7 +5,7 @@
   use Repositories\{IUserAuthenticationRepository, IUserRepository};
   
     
-  class AuthenticationService implements IAuthenticationService
+  class AuthService implements IAuthService
   {
     #Repositories
     private IUserAuthenticationRepository $m_authRepository;
@@ -38,13 +38,12 @@
     }
     
 
-
     /**
      * @param string usernameOrEmail
      * @param string password
      * @param bool rememberMe
-     * @return object
-     * @throws ApiError
+     * @return UserModel object 
+     * @throws ApiError 
      */
     public function authenticate(string $usernameOrEmail, string $password, bool $rememberMe) : object
     {
@@ -84,18 +83,27 @@
 
       $isNewDevice = $this->m_deviceService->isNewDevice();
 
-      if($isNewDevice || $rememberMe && $this->m_userAuthModel->isTwoFactorAuth)
+      if($isNewDevice || $this->m_userAuthModel->isTwoFactorAuth)
       {
         #Send a new OTP to the email address
-        if($this->m_web2FaService->createOtpMailSessionToken(userInfo: $this->m_userAuthModel, rememberMe: $rememberMe))
+        if($this->m_web2FaService->createOtpMailSessionToken(
+          userInfo: $this->m_userAuthModel, 
+          rememberMe: $rememberMe, 
+          isNewDevice: $isNewDevice))
         {
           throw new ApiError ("otp_validation_required");
         }
 
-        throw new ApiError ("unable_to_create_OTP_session");
+        throw new ApiError ("unable_to_create_otp_session");
       }
 
-      
+
+      #Create session
+      if(!$this->m_sessionService->create(userId: $this->m_userAuthModel->id, isValidated: true, rememberMe: $rememberMe))
+      {
+        throw new ApiError ("unable_to_authenticate");
+      }
+
       if($isNewDevice)
       {
         #save device
@@ -109,21 +117,65 @@
         );
       }
 
-
-      #Create session
-      if(!$this->m_sessionService->create(userId: $this->m_userAuthModel->id, isValidated: true, rememberMe: $rememberMe))
-      {
-        throw new ApiError ("unable_to_authenticate");
-      }
-
       $this->m_userModel = $this->m_userRepository->getById(userId: $this->m_userAuthModel->id);
 
       return $this->m_userModel;
     }
 
 
-    public function verifyOTP(string $usernameOrEmail, string $otp) : object 
+    /**
+     * @param int otp
+     * @return UserModel object
+     */
+    public function verifyOTP(int $otp) : object 
     {
-      return (object)[];
+      #validate OTP
+      $tokenObject = $this->m_web2FaService->validateOTP(otp: $otp);
+
+      #Get user object
+      $this->m_userModel = $this->m_userRepository->getById(userId: $tokenObject->userId);
+
+      if($tokenObject->newDevice)
+      {
+        #save device
+        $this->m_deviceService->addNewDevice(userId: $this->m_userModel->id);
+
+        #send new device email
+        $this->m_deviceService->sendNewDeviceDetectedEmail(
+          name: $this->m_userModel->fName, 
+          email: $this->m_userModel->email,
+          locale: $this->m_userModel->locale
+        );
+      }
+
+      #return user Object
+      return $this->m_userModel;
+    }
+
+
+
+
+
+
+    
+    public function resendOTP() : bool
+    {
+      return $this->m_web2FaService->resendOTPMail();
+    }
+
+    public function isLogged() : bool
+    {
+      return $this->m_sessionService->isValid();
+    }
+
+
+    public function endSession() : bool
+    {
+      if($this->m_sessionService->isValid())
+      {
+        return $this->m_sessionService->delete();
+      }
+
+      throw new ApiError("auth_requied");
     }
   }

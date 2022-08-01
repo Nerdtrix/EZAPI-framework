@@ -17,6 +17,8 @@
 
         function deleteByToken(string $token): bool;
 
+        function updateValidation(int $userId, int $sessionId, bool $isValidated) : bool;
+
         public function create(int $userId, int $deviceId, string $token, bool $isValidated, string $expiresAt) : bool;
     }
 ?>

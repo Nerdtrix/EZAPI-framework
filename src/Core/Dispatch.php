@@ -69,7 +69,7 @@
              * If all validations are passed We will pass the params to the method requested
              * and trigger the method as a new instance.
              */
-            $routeInstance = (new DI)->inject($route);
+            $routeInstance = (new DI)->inject($route, $method);
 
             $requestData = (new Request)->data();
 

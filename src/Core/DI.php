@@ -7,8 +7,11 @@
 
     class DI 
     {
+        #reusable instances [class => instance]
+        public static array $instances = [];
         
-        public function inject(string $class) : mixed
+        
+        public function inject(string $class, string $targetMethod = "") : mixed
         {
 
             if($class == "string") return "";
@@ -28,19 +31,52 @@
                 $ref = new ReflectionClass(Mapper::$map[$ref->name]);
             }
 
+            #inject class attibutes
+            foreach ($ref->getAttributes() as $attr) 
+            {
+                $attr->newInstance();
+            }
+
+            #Execute method attibutes
+            foreach ($ref->getMethods() as $method) 
+            {
+                if($method->name == $targetMethod)
+                {
+                    $attributes = $method->getAttributes();
+
+                    foreach($attributes as $attibute)
+                    {
+                        #Unnused for now
+                        $attibuteArgs = $attibute->getArguments();
+                        
+                        $attibute->newInstance();
+                    }
+                }
+            }
+
             $constructor = $ref->getConstructor();
-            
+
             #stop here since there are no dependencies
             if(is_null($constructor))
             {
-                return $ref->newInstance();
+                $newInstance = $ref->newInstance();
+
+                #save instance
+                array_push(self::$instances, [$class => $newInstance]);
+
+                return $newInstance;
             }
             
             $parameters = $constructor->getParameters();
 
             $dependencies = $this->getDependencies($parameters);
 
-            return $ref->newInstanceArgs($dependencies);
+            $newInstance = $ref->newInstanceArgs($dependencies);
+
+            #save instance
+            array_push(self::$instances, [$class => $newInstance]);
+
+            return $newInstance;
         }
         
         
@@ -64,7 +100,7 @@
             
             return $dependencies;
         }
-        
+
         
         public function regularParams(ReflectionParameter $parameter) : mixed
         {
@@ -75,5 +111,9 @@
             
             throw new Exception("Unable to to get parameters");
         }
+
+
+
+
     }
 ?>

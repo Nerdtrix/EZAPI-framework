@@ -3,10 +3,12 @@
 
     interface IWeb2FARepository
     {
-        function getByOtpId(int $token): \Models\Web2FAModel;
+        function getByOtp(int $otp): \Models\Web2FAModel;
 
-        function deleteByOtpId(int $token) : bool;
+        function deleteByOtp(int $otp) : bool;
 
-        function saveOtp(int $userId, int $otp, string $expiresAt) : bool;
+        function saveOtp(int $userId, int $otp, bool $isNewDevice, string $expiresAt) : bool;
+
+        function updateOtpByUserId(int $userId, int $otp, string $expiresAt) : bool;
     }
 ?>

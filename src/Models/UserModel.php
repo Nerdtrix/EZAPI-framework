@@ -4,8 +4,8 @@
   class UserModel
   {
     public ?int $id;
-    public ?int $roleId;
-    public ?int $statusId;
+    public string $role;
+    public string $status;
     public bool $isTwoFactorAuth;
     public string $fName;
     public string $lName;

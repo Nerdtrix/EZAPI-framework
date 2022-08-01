@@ -92,5 +92,13 @@
             return $this->m_db::DATE_TIME_FORMAT;
         }
 
+
+        public function updateValidation(int $userId, int $sessionId, bool $isValidated) : bool
+        {
+            return $this->m_db->update(
+                query: "UPDATE {$this->table} SET isValidated = ? WHERE id = ? AND userId = ?",
+                bind: [$isValidated, $sessionId, $userId]
+            );
+        }
     }
 ?>

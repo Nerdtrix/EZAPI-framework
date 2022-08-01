@@ -4,24 +4,26 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-<<<<<<< HEAD
-            "Core\\": "src/Core",
-            "Core\\Crons\\": "src/Core/Crons",
-            "Core\\Database\\": "src/Core/Database",
-            "Core\\Errors\\": "src/Core/Errors",
-            "Core\\Exceptions\\": "src/Core/Exceptions",
-            "Core\\Languages\\": "src/Core/Languages",
-            "Core\\Mail\\": "src/Core/Mail",
-            "Models\\": "src/Models",
-            "Routes\\": "src/Routes"
-=======
             "Src\\": "src",
+
             "Core\\": "src/Core",
-            "Controllers\\": "src/Controllers",
+            "Core\\Database\\": "src/Core/Database",
+            "Core\\Exceptions\\": "src/Core/Exceptions",
+            "Core\\Language\\": "src/Core/Language",
+            "Core\\Mail\\": "src/Core/Mail",
+
+            "Attributes\\": "src/Attributes",
+
             "Models\\": "src/Models",
+
+            "Controllers\\": "src/Controllers",
+
             "Services\\": "src/Services",
-            "Repositories\\": "src/Repositories"
->>>>>>> rebuildtest
+
+            "Repositories\\": "src/Repositories",
+
+
+            "Middleware\\": "src/Middleware"
         }
     },
     "authors": [
@@ -30,9 +32,6 @@
             "email": "jerryurenaa@gmail.com"
         }
     ],
-<<<<<<< HEAD
-    "require": {}
-=======
     "require": {},
     "autoload-dev": {
         "psr-4": {
@@ -42,5 +41,4 @@
     "require-dev": {
         "phpunit/phpunit": "^9.5"
     }
->>>>>>> rebuildtest
 }

@@ -1,12 +1,12 @@
 <?php
     namespace Middleware;
-    use Services\IAuthenticationService;
+    use Services\IAuthService;
 
-    class Authenticate
+    class AuthMiddleware
     {
         protected $auth;
         
-        public function __construct(IAuthenticationService $auth)
+        public function __construct(IAuthService $auth)
         {
             $this->auth = $auth;
         }
