@@ -1,13 +1,18 @@
 <?php
   namespace Services;
   use Core\Exceptions\ApiError;
-  
+  use Core\{ICookie};
   use Models\{UserModel, UserAuthenticationModel};
   use Repositories\{IUserAuthenticationRepository, IUserRepository};
+
+
+ 
   
     
   class AuthService implements IAuthService
   {
+    private ICookie $m_cookie;
+
     #Repositories
     private IUserAuthenticationRepository $m_authRepository;
     private IUserRepository $m_userRepository;
@@ -25,7 +30,8 @@
     private const PSWCOUNTER = "attempts";//Cookie name
     private int $alertOnAttempts = 3; //Sends an email of failed login attempts
     private int $lockAccountOn = 5; //locks account on 5 failed login attempts and sends an email
-    
+
+   
   
     #Constructor
     public function __construct(
@@ -33,7 +39,8 @@
       IUserRepository $userRepository,
       IDevicesService $deviceService,
       IWeb2FAService $web2faService,
-      ISessionService $sessionService
+      ISessionService $sessionService,
+      ICookie $cookie, 
     )
     {
       $this->m_authRepository = $authRepository;
@@ -41,6 +48,7 @@
       $this->m_deviceService = $deviceService;
       $this->m_web2FaService = $web2faService;
       $this->m_sessionService = $sessionService;
+      $this->m_cookie = $cookie;
     }
     
 
@@ -70,21 +78,21 @@
       }
 
       #Check if the account is banned
-      if($this->m_userAuthModel->status == "banned")
+      if($this->m_userAuthModel->status == "BANNED")
       {
         throw new ApiError ("account_banned");
       }
 
       #Check if the account is inactive
-      if($this->m_userAuthModel->status == "inactive")
+      if($this->m_userAuthModel->status == "INACTIVE")
       {
         throw new ApiError ("account_inactive");
       }
 
       #Check if the account is inactive
-      if($this->m_userAuthModel->status == "blocked")
+      if($this->m_userAuthModel->status == "BLOCKED")
       {
-        throw new ApiError ("account_inactive");
+        throw new ApiError ("account_blocked");
       }
       
       #Checking password input against password hash
@@ -93,7 +101,7 @@
         #Record the amount of times the user tries to login.
         $failCount = 1;
 
-        if($this->m_cookie->exits(self::PSWCOUNTER))
+        if($this->m_cookie->exists(self::PSWCOUNTER))
         {
           $failCount += (int)$this->m_cookie->get(self::PSWCOUNTER);
         }
@@ -106,18 +114,22 @@
         if($failCount == $this->alertOnAttempts)
         {
           $this->m_deviceService->sendLoginAttempsEmail(
-            name: $this->m_userAuthModel->fname, 
+            name: $this->m_userAuthModel->fName, 
             email: $this->m_userAuthModel->email);
         }
 
         #lock account
         if($failCount == $this->lockAccountOn)
         {
-          //TODO update account status to blocked
+          #Update user status
+          $this->m_authRepository->updateUserStatus(
+            userId: $this->m_userAuthModel->id,
+            status: "BLOCKED"
+          );
 
           #Send email
           $this->m_deviceService->sendAccountLockedEmail(
-            name: $this->m_userAuthModel->fname, 
+            name: $this->m_userAuthModel->fName, 
             email: $this->m_userAuthModel->email);
 
           #delete counter cookie
@@ -227,4 +239,7 @@
 
       throw new ApiError("auth_requied");
     }
+
+
+  
   }

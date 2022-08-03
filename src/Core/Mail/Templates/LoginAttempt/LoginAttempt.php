@@ -1,5 +1,5 @@
 <?php
-	namespace Core\Mail\Templates\NewDevice;
+	namespace Core\Mail\Templates\LoginAttempt;
 
 	class LoginAttempt
 	{

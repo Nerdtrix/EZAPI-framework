@@ -8,7 +8,7 @@
     use Repositories\{IDevicesRepository};
     use Core\Mail\Templates\NewDevice\NewDeviceMail;
     use Core\Language\ITranslator;
-    use Core\Mail\Templates\NewDevice\LoginAttempt;
+    use Core\Mail\Templates\LoginAttempt\LoginAttempt;
     
     
   class DevicesService implements IDevicesService
@@ -206,7 +206,14 @@
 
     public function sendAccountLockedEmail(string $name, string $email): void
     {
-      
+        $this->m_email->to = [$name => $email];
+
+        $this->m_email->subject = $this->m_lang->translate("account_locked");
+
+        $this->m_email->htmlTemplate = sprintf("AccountLocked%sAccountLockedMail.phtml", SLASH);
+        
+        #Send mail
+        $this->m_email->send();
     }
 
 

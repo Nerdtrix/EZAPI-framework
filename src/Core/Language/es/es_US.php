@@ -22,7 +22,13 @@ return [
     "we_recently_received_multiple_failed"          => "Recientemente recibimos varios intentos fallidos de inicio de sesión en su cuenta.",
     "if_you_do_not_recognize_this_address"          => "Si no reconoce esta informacion, es posible que otra persona esté intentando acceder a su cuenta. Estos intentos de inicio de sesión no tuvieron éxito, por lo que no se requiere ninguna acción. Sin embargo, es posible que desee restablecer su contraseña para mayor seguridad.",
     "if_this_was_you_ignore"                        => "Si fue usted, puede ignorar con seguridad este correo electrónico.",
-    "too_many_login_attempts"                       => "Demasiados intentos de inicio de sesión"
+    "too_many_login_attempts"                       => "Demasiados intentos de inicio de sesión",
+    "your_account_has_been_locked"                  => "Su cuenta ha sido bloqueada para evitar más intentos de acceso",
+    "this_action_as_taken_in_response"              => "Esta acción se tomó en respuesta a demasiados inicios de sesión fallidos.",
+    "to_unlock_your_account"                        => "Para desbloquear su cuenta, póngase en contacto con nuestro soporte técnico.",
+    "for_your_security_your_account"                => "Por su seguridad, su cuenta permanecerá bloqueada hasta que se comunique con nosotros.",
+    "we_will_be_happy_to_assist"                    => "Estaremos encantados de ayudarle con respecto a este asunto.",
+    "Account locked"                                => "Cuenta bloqueada"
 ];
 
 ?>

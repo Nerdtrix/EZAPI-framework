@@ -21,7 +21,13 @@ return [
     "we_recently_received_multiple_failed"          => "We recently received multiple failed login attempts to your account.",
     "if_you_do_not_recognize_this_address"          => "If you do not recognize this address, someone else might be trying to access your account. These sign-in attempts were unsuccessful, so no action is required. However, you may wish to reset your password for greater security.",
     "if_this_was_you_ignore"                        => "If this was you, you may safely ignore this email.",
-    "too_many_login_attempts"                       => "too many login attempts"
+    "too_many_login_attempts"                       => "too many login attempts",
+    "your_account_has_been_locked"                  => "Your account has been locked to prevent further access attempts",
+    "this_action_as_taken_in_response"              => "This action was taken in response to too many failed logins.",
+    "to_unlock_your_account"                        => "To unlock your account please contact our tech support.",
+    "for_your_security_your_account"                => "For your security, your account will remain locked until you get in touch with us.",
+    "we_will_be_happy_to_assist"                    => "We will be happy to assist you regarding this matter.",
+    "account_locked"                                => "Account locked"
 
 ];
 

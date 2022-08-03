@@ -32,7 +32,7 @@
             if(empty($query)) throw new Exception("A query is required");
             if(empty($bind)) throw new Exception("you must bind your data");
             if(empty($model)) throw new Exception("A data model is required");
-            if(!class_exists($model)) throw new Exception("the model class is invalid");
+            if(!class_exists($model)) throw new Exception("the model class is invalid or does not exists");
 
             
 

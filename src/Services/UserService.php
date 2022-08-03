@@ -37,10 +37,6 @@
             return $this->m_userModel;
         }
 
-        public function updateUser(){}
-
-        public function editUser(){}
-
         public function deleteUser(){}
     }
 ?>
