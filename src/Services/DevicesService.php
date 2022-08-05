@@ -9,6 +9,7 @@
     use Core\Mail\Templates\NewDevice\NewDeviceMail;
     use Core\Language\ITranslator;
     use Core\Mail\Templates\LoginAttempt\LoginAttempt;
+    use Core\Mail\Templates\AccountLocked\AccountLocked;
     
     
   class DevicesService implements IDevicesService
@@ -172,6 +173,7 @@
         $brower = $this->m_helper->getBrowserInfo();
 
         #Fill template variables
+        NewDeviceMail::$fName = $name;
         NewDeviceMail::$date = date("m/d/Y H:i:s", strtotime(TIMESTAMP));
         NewDeviceMail::$browser = $brower->name;
         NewDeviceMail::$platform = $brower->platform;
@@ -195,6 +197,7 @@
       $brower = $this->m_helper->getBrowserInfo();
 
       #Fill template variables
+      LoginAttempt::$fName = $name;
       LoginAttempt::$date = date("m/d/Y H:i:s", strtotime(TIMESTAMP));
       LoginAttempt::$browser = $brower->name;
       LoginAttempt::$platform = $brower->platform;
@@ -211,6 +214,8 @@
         $this->m_email->subject = $this->m_lang->translate("account_locked");
 
         $this->m_email->htmlTemplate = sprintf("AccountLocked%sAccountLockedMail.phtml", SLASH);
+
+        AccountLocked::$fName = $name;
         
         #Send mail
         $this->m_email->send();

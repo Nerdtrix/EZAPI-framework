@@ -4,7 +4,7 @@
   use Core\{ICookie};
   use Models\{UserModel, UserAuthenticationModel};
   use Repositories\{IUserAuthenticationRepository, IUserRepository};
-
+  
 
  
   
@@ -238,6 +238,37 @@
       }
 
       throw new ApiError("auth_requied");
+    }
+
+    /**
+     * @param object input
+     * @throws ApiError exceptions
+     */
+    public function validateRegisterFields(object $input) : void
+    {
+      $errors = [];
+
+      
+      if(empty($input->fName)) $errors[] = ["fName" => "first_name_is_required"];
+
+      if(empty($input->lName)) $errors[] = ["lName" => "last_name_is_required"];
+
+      if(empty($input->username)) $errors[] = ["username" => "username_is_required"];
+
+      if(empty($input->email)) $errors[] = ["email" => "email_is_required"];
+
+      if(empty($input->password)) $errors[] = ["password" => "password_required"];
+
+      if(empty($input->confirmPsw)) $errors[] = ["confirmPsw" => "confirm_password_is_required"];
+
+      //validate fields
+
+      //assign to the model for extra validations
+
+      //z
+      
+      
+      if(!empty($errors)) throw new ApiError($errors);
     }
 
 

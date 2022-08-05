@@ -3,7 +3,9 @@
 	 * Every html email template must be inlined if it contains css. You can try any website online like this one https://htmlemail.io/inline/
 	 * If your code requires php variables then you must use a namespace.
 	 */
-	namespace Core\Mail\Templates\NewDevice; 
+	namespace Core\Mail\Templates\NewDevice;
+
+use Core\Mail\Templates\AccountLocked\AccountLocked;
 
 	#Translator instance
 	$lang = new \Core\Language\Translator();	
@@ -74,7 +76,10 @@
 						<table class="wrapper" role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; min-width: 100%; box-sizing: border-box; padding: 20px; background: #ffffff; border-radius: 5px; width: 100%;" width="100%">
 							<tr>
 								<td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">	
-									<p>
+								    <h2>
+										<?= $lang->translate("hello")?>, <?= AccountLocked::$fName ?>
+									</h2>	
+                                    <p>
                                         <?= $lang->translate("your_account_has_been_locked")?>
                                     </p>
 									<h4>

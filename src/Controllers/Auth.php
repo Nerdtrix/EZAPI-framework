@@ -96,7 +96,8 @@
                 throw new ApiError("otp_is_required");
             }
 
-            $response = $this->m_authService->verifyOTP(otp: (int)$input->otp);
+            $response = $this->m_authService->verifyOTP(
+                otp: (int)$input->otp);
 
             $this->m_request->response($response);
         }
@@ -116,9 +117,22 @@
         }
 
 
-        public function register() : void 
+        /**
+         * @method POST
+         */
+        public function register(object $input) : void 
         {
+            if(is_null($input))
+            {
+                throw new Exception("Invalid request body");
+            }
 
+            $this->m_authService->validateRegisterFields($input);
+
+           
+
+            
+            
         }
 
         /**

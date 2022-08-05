@@ -10,7 +10,7 @@
         private const LINE = "line";
 
 
-        public function __construct(string $errorMessage, int $httpCode = 400) 
+        public function __construct(mixed $errorMessage, int $httpCode = 400) 
         {
             parent::__construct($errorMessage, $httpCode);
 

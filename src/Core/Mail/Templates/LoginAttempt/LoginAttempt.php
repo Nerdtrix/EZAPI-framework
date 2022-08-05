@@ -3,6 +3,7 @@
 
 	class LoginAttempt
 	{
+		public static ?string $fName;
 		public static ?string $date;
 		public static ?string $browser;
 		public static ?string $platform;

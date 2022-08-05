@@ -11,5 +11,7 @@
         function resendOTP() : bool;
 
         function isLogged() : bool;
+
+        function validateRegisterFields(object $input) : void;
     }
 ?>

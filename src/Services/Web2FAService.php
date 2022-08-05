@@ -123,6 +123,7 @@
         $this->m_email->htmlTemplate = sprintf("Web2FA%sWeb2FAMail.phtml", SLASH);
 
         #Fill template variables
+        Web2FAMail::$fName = $name;
         Web2FAMail::$otp = $otp;
       
         #Send mail
