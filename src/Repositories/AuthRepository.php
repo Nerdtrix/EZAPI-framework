@@ -1,19 +1,24 @@
 <?php
     namespace Repositories;
     use Core\Database\Mysql\IMysql;
-    use Models\{UserAuthenticationModel, StatusModel};
-    
+    use Models\{AuthModel, UserModel, StatusModel};
     use Core\Exceptions\DBError;
 
+    interface IAuthRepository
+    {
+        function getUserByUsernameOrEmail(string $usernameOrEmail) : AuthModel;
+        function getUserById(int $userId): UserModel;
+        function updateUserStatus(int $userId, string $status) : bool;
+    }
 
-    class UserAuthenticationRepository implements IUserAuthenticationRepository
+    class AuthRepository implements IAuthRepository
     {
         private IMysql $m_db;
         private string $userTable = "user";
         private string $roleTable = "role";
         private string $statusTable = "status";
-        
 
+        
         public function __construct(IMysql $mySql)
         {
             $this->m_db = $mySql;
@@ -21,41 +26,41 @@
 
 
         /**
-         * @param string email
-         * @return UserAuthenticationModel
+         * @param string usernameOrEmail
+         * @return AuthModel
          */
-        public function getUserByEmail(string $email) : UserAuthenticationModel
+        public function getUserByUsernameOrEmail(string $usernameOrEmail) : AuthModel
         {
+            $getBy = filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL) ? "email" : "username";
+
             $query =  "SELECT user.id, user.roleId, user.statusId, user.username, user.fName, user.lName, user.password, user.email, user.locale, user.isTwoFactorAuth, role.role, status.status
                 FROM {$this->userTable} user, {$this->roleTable} role, {$this->statusTable} status
-                WHERE user.email = ? AND user.statusId = status.id AND user.roleId = role.id
-                ORDER BY user.email ASC 
+                WHERE user.{$getBy} = ? AND user.statusId = status.id AND user.roleId = role.id
+                ORDER BY user.{$getBy} ASC 
                 LIMIT 1";
 
             return $this->m_db->select(
                 query: $query,
-                bind: [$email],
-                model: UserAuthenticationModel::class
+                bind: [$usernameOrEmail],
+                model: AuthModel::class
             );
         }
 
 
         /**
-         * @param string username
-         * @return UserAuthenticationModel
+         * @param int userId
+         * @return UserModel
          */
-        public function getUserByUsername(string $username) : UserAuthenticationModel
-        {            
-            $query =  "SELECT user.id, user.roleId, user.statusId, user.username, user.fName, user.lName, user.password, user.email, user.locale, user.isTwoFactorAuth, role.role, status.status
-                FROM {$this->userTable} user, {$this->roleTable} role, {$this->statusTable} status
-                WHERE user.username = ? AND user.statusId = status.id AND user.roleId = role.id
-                ORDER BY user.username ASC 
-                LIMIT 1";
+        public function getUserById(int $userId): UserModel
+        {
+            $query =  "SELECT user.*, role.role, status.status
+                FROM {$this->userTable} user, {$this->roleTable} role, $this->statusTable status
+                WHERE user.id = ? AND role.id = user.roleId AND status.id = user.statusId";
 
             return $this->m_db->select(
                 query: $query,
-                bind: [$username],
-                model: UserAuthenticationModel::class
+                bind: [$userId],
+                model: UserModel::class
             );
         }
 

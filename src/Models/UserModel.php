@@ -3,10 +3,8 @@
 
   class UserModel
   {
-    public ?int $id;
     public string $role;
     public string $status;
-    public bool $isTwoFactorAuth;
     public string $fName;
     public string $lName;
     public string $email;

@@ -9,7 +9,12 @@
     use Core\Mail\Templates\Web2FA\Web2FAMail;
     use Core\Language\ITranslator;
     
-    
+    interface IWeb2FAService
+    {
+        function createOtpMailSessionToken(object $userInfo, bool $rememberMe) : bool;
+        function validateOTP(int $otp): \Models\Web2FAModel;
+        function resendOTPMail() : bool;
+    }
   class Web2FAService implements IWeb2FAService
   {
     private Ihelper $m_helper;
@@ -37,25 +42,24 @@
         $this->m_lang = $translator;
     }
 
-    public function createOtpMailSessionToken(object $userInfo, bool $rememberMe, bool $isNewDevice) : bool
+    public function createOtpMailSessionToken(object $userInfo, bool $rememberMe) : bool
     {
         #Create a random OTP
         $otp = $this->m_helper->randomNumber(6);
 
         #Minutes calculation
-        $timestamp = CURRENT_TIME + (self::OTP_EXPIRATION_MINUTES * 60);
-
-        #expiration time
-        $expirationTime = date(DATE_FORMAT, $timestamp);  
+        $expirationTime = CURRENT_TIME + (self::OTP_EXPIRATION_MINUTES * 60);
 
         #Create invalidated session.
-        if($this->m_sessionService->create(userId: $userInfo->id, isValidated: false, rememberMe: $rememberMe))
+        if($this->m_sessionService->create(
+            userId: $userInfo->id, 
+            isValidated: false, 
+            rememberMe: $rememberMe))
         {
             if(!$this->m_web2FaRepository->saveOtp(
                 userId: $userInfo->id, 
                 otp: $otp, 
-                isNewDevice: $isNewDevice,
-                expiresAt: $expirationTime))
+                expiresAt: strtotime($expirationTime)))
             {
                 throw new ApiError("unable_to_generate_OTP");
             }
@@ -153,6 +157,9 @@
         #Validate time
         if(strtotime(CURRENT_TIME) > $expirationTime)
         {
+            #delete token
+            $this->m_web2FaRepository->deleteByOtp(otp: $otp);
+
             throw new ApiError("expired_otp");
         }
         
@@ -170,9 +177,6 @@
 
         throw new ApiError("unable_to_authenticate");
     }
-
-
-   
   }
 
 ?>

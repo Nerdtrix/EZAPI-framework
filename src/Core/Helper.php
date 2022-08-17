@@ -1,6 +1,15 @@
 <?php
     namespace Core;
 
+    interface IHelper
+    {
+        function publicIP() : string;
+
+        function randomNumber(int $length) : int;
+
+        function getBrowserInfo() : object;
+    }
+
     class Helper implements IHelper
     {
         /**

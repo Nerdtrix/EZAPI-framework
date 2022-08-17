@@ -2,6 +2,8 @@
     namespace EZAPIFRAMEWORK;
     use \Exception;
     use \TypeError;
+    use \Throwable;
+    use \ErrorException;
     use \Error;
     use Core\Dispatch;
     use Core\Exceptions\Error as ErrorHandler;
@@ -20,9 +22,16 @@
     * 
     */
 
+    
 
     try
     {
+        #Handle warnings and fatal errors
+        set_error_handler(function ($errno, $errstr, $errfile, $errline)
+        {
+            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+
+        }, E_WARNING | E_ERROR);
 
         #Composer path
         $composerPath = sprintf(
@@ -33,33 +42,12 @@
         );
 
         #Verify composer autoload
-        if(file_exists($composerPath))
+        if(!file_exists($composerPath))
         {
-            require_once($composerPath);
+          throw new Exception("Please run the command `composer install` within the directory.");  
         }
-        else
-        {
-            #Native Autoload
-            spl_autoload_register(function (string $className)
-            {
-                $fileName = sprintf(
-                    "%s%ssrc%s%s.php", 
-                    dirname(__DIR__),  
-                    DIRECTORY_SEPARATOR, 
-                    DIRECTORY_SEPARATOR, 
-                    str_replace("\\", DIRECTORY_SEPARATOR, $className)
-                );
 
-                if (file_exists($fileName))
-                {
-                    require ($fileName);
-                }
-                else
-                {
-                    throw new Exception(sprintf("Class not found: %s", $fileName));
-                }
-            });
-        }
+        require_once($composerPath);
 
         #Dispatch request
         (new Dispatch)->request();
@@ -69,6 +57,14 @@
         ErrorHandler::handler($ex);
     }
     catch(TypeError $ex)
+    {
+        ErrorHandler::handler($ex);
+    }
+    catch(Throwable $ex)
+    {
+        ErrorHandler::handler($ex);
+    }
+    catch(ErrorException $ex)
     {
         ErrorHandler::handler($ex);
     }

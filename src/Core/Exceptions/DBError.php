@@ -19,31 +19,29 @@
             
             #Add HTTP response code
             http_response_code($httpCode);
-
-            //see this url for json structure https://jsonapi.org/examples/
             
             #Add extra details while not in production mode
             if (!PRODUCTION) 
             {
                 $response = [
-                    Constant::ERROR => [
-                        Constant::CODE => $httpCode,
+                    Constant::STATUS => Constant::ERROR,
+                    Constant::CODE => $httpCode,
+                    Constant::ERRORS => [
                         Constant::MESSAGE => $errorMessage,
                         self::EXCEPTION => get_class($this),
                         self::LOCATION => $this->getFile(),
                         self::LINE => $this->getLine()
                     ]
                 ];
-            }
+            } 
             else
             {
                 $response = [
-                    Constant::ERROR => [
-                        Constant::CODE => $httpCode,
-                        Constant::MESSAGE => $errorMessage
-                    ]
+                    Constant::STATUS => Constant::ERROR,
+                    Constant::CODE => $httpCode,
+                    Constant::ERRORS => $errorMessage
                 ];
-            }       
+            } 
 
             #Convert array to object
             $response = json_encode($response);            

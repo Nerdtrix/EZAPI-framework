@@ -14,7 +14,10 @@
         private ITranslator $m_lang;
 
 
-        public function __construct(IRequest $request, IAuthService $authService, ITranslator $translator)
+        public function __construct(
+            IRequest $request, 
+            IAuthService $authService, 
+            ITranslator $translator)
         {
             $this->m_authService = $authService;
             $this->m_request = $request;
@@ -23,7 +26,7 @@
 
 
         /**
-         * @api route /auth/ or  /
+         * @api /auth/ or  /
          * @method GET
          * @return object
          */
@@ -38,23 +41,24 @@
       
         
         /**
-         * @api route /auth/Login
+         * @api /auth/Login
          * @method POST
-         * @param object $input {usernameOrEmail: required string, password: required string, rememeberMe: obtional bool}
+         * @param object {usernameOrEmail: required string, password: required string, rememeberMe: obtional bool}
          * @return object
-         * @throws Exception
          * @throws ApiError
          */
         public function Login(object $input) : void
         { 
             if($this->m_authService->isLogged())
             {
-                throw new ApiError("already_logged");
+                $response = $this->m_authService->getLoggedUserInfo();
+
+                $this->m_request->response($response);
             }
 
             if(is_null($input))
             {
-                throw new Exception("Invalid request body");
+                throw new ApiError("Invalid_request_body");
             }
             
             if(empty($input->usernameOrEmail))
@@ -76,16 +80,35 @@
             $this->m_request->response($response);
         }
 
+        /**
+         * @api /auth/logout
+         * @method POST
+         * @return object
+         * @throws ApiError
+         */
+        #[Authorize]
+        public function logout() : void 
+        {
+            $this->m_authService->endSession();
+
+            $this->m_request->response("success");
+        }
+
 
         /**
          * @api route /auth/web2fa
-         * @method post
+         * @method POST
          * @param object $input {otp: int}
          * @return object
          * @throws ApiError
          */
         public function web2fa(object $input) : void
         {
+            if($this->m_authService->isLogged())
+            {
+                throw new ApiError("already_logged");
+            }
+
             if(is_null($input))
             {
                 throw new Exception("Invalid request body");
@@ -96,8 +119,7 @@
                 throw new ApiError("otp_is_required");
             }
 
-            $response = $this->m_authService->verifyOTP(
-                otp: (int)$input->otp);
+            $response = $this->m_authService->verifyOTP(otp: (int)$input->otp);
 
             $this->m_request->response($response);
         }
@@ -108,6 +130,11 @@
          */
         public function resendOTP() : void
         {
+            if($this->m_authService->isLogged())
+            {
+                throw new ApiError("already_logged");
+            }
+            
             if($this->m_authService->resendOTP())
             {
                 $this->m_request->response("otp_sent");
@@ -127,7 +154,7 @@
                 throw new Exception("Invalid request body");
             }
 
-            $this->m_authService->validateRegisterFields($input);
+            $this->m_authService->validateRegistrationFields($input);
 
            
 
@@ -143,16 +170,11 @@
          */
 
 
-        //#[Route("/logout", "POST")]
-        #[Authorize]
-        public function logout() : void 
+        
+
+        public function resetPsw() : void
         {
-            if($this->m_authService->endSession())
-            {
-                $this->m_request->response("success");
-            }
-            
-            throw new ApiError("session_expired");
+
         }
 
 

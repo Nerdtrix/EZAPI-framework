@@ -3,6 +3,16 @@
     use Core\Database\Mysql\IMysql;
     use Models\Web2FAModel;
 
+    interface IWeb2FARepository
+    {
+        function getByOtp(int $otp): \Models\Web2FAModel;
+
+        function deleteByOtp(int $otp) : bool;
+
+        function saveOtp(int $userId, int $otp, string $expiresAt) : bool;
+
+        function updateOtpByUserId(int $userId, int $otp, string $expiresAt) : bool;
+    }
 
     class Web2FARepository implements IWeb2FARepository
     {
@@ -15,11 +25,11 @@
             $this->m_db = $mySql;
         }
 
-        public function saveOtp(int $userId, int $otp, bool $isNewDevice, string $expiresAt) : bool
+        public function saveOtp(int $userId, int $otp, string $expiresAt) : bool
         {
             return $this->m_db->insert(
-                query: "INSERT INTO {$this->table} SET userId = ?, otp = ?, newDevice = ?, expiresAt = ?",
-                bind: [$userId, $otp, $isNewDevice, $expiresAt]
+                query: "INSERT INTO {$this->table} SET userId = ?, otp = ?, expiresAt = ?",
+                bind: [$userId, $otp, $expiresAt]
             );
         }
 

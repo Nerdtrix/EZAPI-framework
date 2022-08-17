@@ -3,6 +3,13 @@
     use Core\Exceptions\ApiError;
     use \Exception;
 
+    interface IRequest
+    {
+        function data() : mixed;
+        
+        function response(mixed $response, int $code = 200) : void;
+    }
+
     class Request implements IRequest
     {
         
@@ -167,20 +174,21 @@
             #Add HTTP response code
             http_response_code($code);
 
-            //see this url for json structure https://jsonapi.org/examples/
             if($code >= 400)
             {
                 $response = [
-                    Constant::ERROR => [
-                        Constant::CODE => $code,
-                        Constant::MESSAGE => $response
-                    ]
+                    Constant::SUCCESS => false,
+                    Constant::CODE => $code,
+                    Constant::ERRORS => $response
+                    
                 ];
             }
             
-            if($code == 200)
+            if($code < 400)
             {
                 $response = [
+                    Constant::SUCCESS => true,
+                    Constant::CODE => $code,
                     Constant::RESULT => $response
                 ];
             }

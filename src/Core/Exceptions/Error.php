@@ -16,30 +16,28 @@
             
        #Add HTTP response code
        http_response_code(500);
-
-       //see this url for json structure https://jsonapi.org/examples/
       
        #Add extra details while not in production mode
        if (!PRODUCTION) 
        {
-            $response = [
-                Constant::ERROR => [
-                    Constant::CODE => 500,
-                    Constant::MESSAGE => $ex->getMessage(),
-                    self::EXCEPTION => get_class($ex),
-                    self::LOCATION => $ex->getFile(),
-                    self::LINE => $ex->getLine()
-                ]
-            ];
+          $response = [
+            Constant::STATUS => Constant::ERROR,
+            Constant::CODE => 500,
+            Constant::ERRORS => [
+              Constant::MESSAGE => $ex->getMessage(),
+              self::EXCEPTION => get_class($ex),
+              self::LOCATION => $ex->getFile(),
+              self::LINE => $ex->getLine()
+            ]
+          ];
        } 
        else
        {
-            $response = [
-                Constant::ERROR => [
-                    Constant::CODE => 500,
-                    Constant::MESSAGE => Dictionary::httpResponseCode[500]
-                ]
-            ];
+          $response = [
+            Constant::STATUS => Constant::ERROR,
+            Constant::CODE => 500,
+            Constant::ERRORS => Dictionary::httpResponseCode[500]
+          ];
        } 
 
        //todo save log

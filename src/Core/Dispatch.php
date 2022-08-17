@@ -13,6 +13,8 @@
          */
         public function request() : void
         {
+            
+
             #Load app config
             (new Config)->load();
 

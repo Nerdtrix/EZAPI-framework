@@ -4,6 +4,10 @@
     use Models\{UserModel};
     use Repositories\{IUserRepository};
 
+    interface IUserService
+    {
+        function userInfo() : object;
+    }
 
     class UserService implements IUserService
     {
@@ -26,17 +30,11 @@
        
         public function userInfo() : object
         {
-            if(!$this->m_sessionService->isValid())
-            {
-                throw new ApiError("auth_required");
-            }
-
             $this->m_userModel = $this->m_userRepository->getById(
                 userId: $this->m_sessionService->userId());
 
             return $this->m_userModel;
         }
 
-        public function deleteUser(){}
     }
 ?>

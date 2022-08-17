@@ -3,6 +3,11 @@
     use Core\Database\Mysql\IMysql;
     use Models\UserModel;
 
+    interface IUserRepository
+    {
+        function getById(int $userId): \Models\UserModel;
+
+    }
 
     class UserRepository implements IUserRepository
     {
@@ -33,9 +38,5 @@
                 model: UserModel::class
             );
         }
-
-        
-        
-
     }
 ?>

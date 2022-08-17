@@ -17,7 +17,7 @@
             $this->m_request = $request;
         }  
 
-        /** @api route /user/info
+        /** @api /user/info
          * @method GET
          * @return object
          * @throws ApiError
@@ -30,13 +30,10 @@
         }
 
         
-        public function update() : void
+        public function update(object $input) : void
         {
 
         }
 
-        public function resetPsw() : void
-        {
-
-        }
+       
     }

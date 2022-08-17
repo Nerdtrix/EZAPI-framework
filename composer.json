@@ -22,9 +22,9 @@
 
             "Repositories\\": "src/Repositories",
 
-
             "Middleware\\": "src/Middleware"
-        }
+        },
+        "classmap": ["src"]
     },
     "authors": [
         {

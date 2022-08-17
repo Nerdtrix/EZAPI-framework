@@ -8,9 +8,17 @@
     use Repositories\{IDevicesRepository};
     use Core\Mail\Templates\NewDevice\NewDeviceMail;
     use Core\Language\ITranslator;
-    use Core\Mail\Templates\LoginAttempt\LoginAttempt;
-    use Core\Mail\Templates\AccountLocked\AccountLocked;
     
+    
+    interface IDevicesService
+    {
+        function listDevicesByUserId(string $userId) : \stdClass;
+        function addNewDevice(int $userId) : int;
+        function sendNewDeviceDetectedEmail(string $name, string $email, string $locale) : void;
+
+        function getDeviceId() : int;
+
+    }
     
   class DevicesService implements IDevicesService
   {
@@ -60,37 +68,6 @@
     }
 
 
-    /**
-     * @return bool
-     * This method will verify if a cookie exits and find the db record 
-     * using the cookie identifier and then validate the information.
-     */
-    public function isNewDevice() : bool
-    {
-        if(!$this->m_cookie->exists(self::COOKIE_NAME))
-        {
-            return true;
-        }
-
-        $this->m_devicesModel = $this->m_devicesRepository->getDeviceByCookieIdentifier(cookieIdentifier: $this->m_cookie->get(self::COOKIE_NAME));
-
-        if(!empty($this->m_devicesModel->id))
-        {
-            #Get browser info
-            $browserInfo = $this->m_helper->getBrowserInfo();
-
-            #Get public Ip
-            $publicIp = $this->m_helper->publicIP();
-
-            #If everything match this is a valid device.
-            if($this->m_devicesModel->ip === $publicIp && $this->m_devicesModel->name == $browserInfo->name)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
 
 
     public function getDeviceId() : int
@@ -126,7 +103,7 @@
      * This method will generate a new token and assign it to a 
      * cookie and save the record in the database for 1 year.
      */
-    public function addNewDevice(int $userId) : void
+    public function addNewDevice(int $userId) : int
     {
         #Generate a random token
         $randomHash = $this->m_crypto->randomToken();
@@ -147,7 +124,7 @@
         }
 
         #Save device info in the DB
-        $this->m_devicesRepository->addNewDevice(
+        return $this->m_devicesRepository->addNewDevice(
             userId: $userId, 
             ipAddress: $this->m_helper->publicIP(), 
             deviceName: $browserInfo->name, 
@@ -156,11 +133,12 @@
         );
     }
 
+    
     /**
      * @param string name
      * @param string email
      * @param string locale
-     * This method sends a new email to the user. 
+     * This method sends a new email to the user notifying that a new device has been added to his account. 
      */
     public function sendNewDeviceDetectedEmail(string $name, string $email, string $locale) : void
     {
@@ -181,48 +159,6 @@
       
         $this->m_email->send();
     }
-
-    /**
-     * @param string name
-     * @param string email
-     */
-    public function sendLoginAttempsEmail(string $name, string $email): void
-    {
-      $this->m_email->to = [$name => $email];
-
-      $this->m_email->subject = $this->m_lang->translate("too_many_login_attempts");
-
-      $this->m_email->htmlTemplate = sprintf("LoginAttempt%sLoginAttemptMail.phtml", SLASH);
-
-      $brower = $this->m_helper->getBrowserInfo();
-
-      #Fill template variables
-      LoginAttempt::$fName = $name;
-      LoginAttempt::$date = date("m/d/Y H:i:s", strtotime(TIMESTAMP));
-      LoginAttempt::$browser = $brower->name;
-      LoginAttempt::$platform = $brower->platform;
-      LoginAttempt::$ipAddress = $this->m_helper->publicIP();
-    
-      #Send mail
-      $this->m_email->send();
-    }
-
-    public function sendAccountLockedEmail(string $name, string $email): void
-    {
-        $this->m_email->to = [$name => $email];
-
-        $this->m_email->subject = $this->m_lang->translate("account_locked");
-
-        $this->m_email->htmlTemplate = sprintf("AccountLocked%sAccountLockedMail.phtml", SLASH);
-
-        AccountLocked::$fName = $name;
-        
-        #Send mail
-        $this->m_email->send();
-    }
-
-
-    
 
   }
 ?>

@@ -7,9 +7,9 @@
     {
         public function __construct(
             string $type = "string", 
-            int $length = 100, 
-            bool $nullable = false,
-            bool $unique = false)
+            int $minLength = 0, 
+            int $maxLength = 150, 
+            bool $isNullable = false)
         {
            //get called value
             $value = "";
@@ -17,14 +17,30 @@
             #Validate type
             if(gettype($value) != $type)
             {
-                throw new Exception("");
+                throw new Exception("invalid data type");
             }
 
             #Validate length
-            if(strlen($value) != $length){}
+            if(strlen($value) < $minLength)
+            {
+                throw new Exception(
+                    sprintf("the value length must be at least %s characters", $minLength));
+            }
+
+            if(strlen($value) > $maxLength)
+            {
+                throw new Exception(
+                    sprintf("the value length must be at least %s characters", $maxLength));
+            }
 
             #Validate nulll
-            if(empty($value) && !$nullable){}
+            if(empty($value) && !$isNullable)
+            {
+                throw new Exception(sprintf("value is required"));
+            }
         }
+
+
+        //call the DB to dump values
     }
 ?>

@@ -10,6 +10,7 @@
             \Core\IHelper::class => \Core\Helper::class,
             \Core\ICrypto::class => \Core\Crypto::class,
             \Core\IRequest::class => \Core\Request::class,
+            \Core\ICrypto::class => \Core\Crypto::class,
 
             #Core DB
             \Core\Database\Mysql\IMysql::class => \Core\Database\Mysql\Mysql::class,
@@ -28,7 +29,7 @@
             \Repositories\IWeb2FARepository::class => \Repositories\Web2FARepository::class,
             \Repositories\ISessionRepository::class => \Repositories\SessionRepository::class,
             \Repositories\IUserRepository::class => \Repositories\UserRepository::class,
-            \Repositories\IUserAuthenticationRepository::class => \Repositories\UserAuthenticationRepository::class,
+            \Repositories\IAuthRepository::class => \Repositories\AuthRepository::class,
             \Repositories\IDevicesRepository::class => \Repositories\DevicesRepository::class,
 
             #Services
@@ -36,7 +37,8 @@
             \Services\IAuthService::class =>  \Services\AuthService::class,
             \Services\IWeb2FAService::class => \Services\Web2FAService::class,
             \Services\IDevicesService::class => \Services\DevicesService::class,
-            \Services\IUserService::class => \Services\UserService::class
+            \Services\IUserService::class => \Services\UserService::class,
+            \Services\IPasswordService::class => \Services\PasswordService::class
         ];
     }
 ?>

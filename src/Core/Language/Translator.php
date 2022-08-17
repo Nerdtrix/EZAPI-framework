@@ -4,6 +4,15 @@
 
 use Exception;
 
+interface ITranslator
+    {
+        function translate(string $key) : string;
+
+        function setLocale(string $locale): void;
+
+        function getLocale() : string;
+    }
+
     class Translator implements ITranslator
     {
         private array $m_dictionary;
