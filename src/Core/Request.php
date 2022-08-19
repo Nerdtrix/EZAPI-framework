@@ -7,7 +7,7 @@
     {
         function data() : mixed;
         
-        function response(mixed $response, int $code = 200) : void;
+        function response(mixed $response = "success", int $code = 200) : void;
     }
 
     class Request implements IRequest
@@ -122,6 +122,8 @@
             #Get params 
             $input = file_get_contents("php://input");
 
+            if(empty($input)) return (object)[];
+
             #Decode params
             $results = json_decode($input);
 
@@ -162,7 +164,7 @@
          * @param mixed response
          * @throws Exceptions
          */
-        public function response(mixed $response, int $code = 200) : void
+        public function response(mixed $response = "success", int $code = 200) : void
         {
             #Validate response code
             if(!array_key_exists($code, Dictionary::httpResponseCode)) 

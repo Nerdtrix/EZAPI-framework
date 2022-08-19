@@ -13,10 +13,9 @@
 ## Start without debugging
 To to Terminal/Run Task/EZAPI server
 
-## Optional composer autoload
-- composer install
-- composer dump-autoload
 
 ## First time only
+- composer install
+- composer dump-autoload
 - Duplicate .env.example and rename them with .env and copy the content of example to them.
 - If Composer is preferred follow the step above.

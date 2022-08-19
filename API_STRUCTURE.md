@@ -1,5 +1,5 @@
 ## Login API
-- URL path: /authenticate/login
+- URL path: /auth/login
 - method: post 
 
 ### body payload example
@@ -10,11 +10,11 @@
 ### status 200 response
 ```json
 {
+    "success": true,
+    "code": 200,
     "result": {
-        "id": 1,
-        "roleId": 1,
-        "statusId": 1,
-        "isTwoFactorAuth": false,
+        "role": "USER",
+        "status": "ACTIVE",
         "fName": "first name",
         "lName": "last name",
         "email": "emailaddress@gmail.com",
@@ -30,15 +30,13 @@
 ### status 400 response structure
 ```json
 {
-    "error": {
-        "code": 400,
-        "message": "invalid_username_or_password"
-    }
+    "success": false,
+    "code": 400,
+    "errors": "invalid_username_or_password"
 }
 ```
 
 ### status 400 response messages
-- Invalid request body
 - Username_or_email_is_required
 - password_is_required
 - user_not_found

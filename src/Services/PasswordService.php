@@ -12,6 +12,8 @@
     interface IPasswordService
     {
         function validatePassword(string $inputPassword, AuthModel $authModel) : void;
+        function weekPasswordValidation(string $password, bool $useSpecialCharacter = false) :  void;
+        function securePassword(string $password) : string;
     }
 
     class PasswordService implements IPasswordService
@@ -43,6 +45,60 @@
             $this->m_helper = $helper;
             $this->m_authRepository = $authRepository;
             $this->m_crypto = $crypto;
+        }
+
+
+        /**
+         * @param string password
+         * @return string
+         */
+        public function securePassword(string $password) : string
+        {
+            $hashedPsw = password_hash($password, PASSWORD_DEFAULT);
+
+            return $this->m_crypto->AESEncrypt($hashedPsw);
+        }
+
+
+        /**
+         * @param string password
+         * @param bool useSpecialCharacter
+         * @throws ApiError
+         * This function ensures that we are using a solid password
+         */
+        public function weekPasswordValidation(string $password, bool $useSpecialCharacter = false) :  void
+        {
+            $error = [];
+
+            if ((int)strlen($password) < 8) 
+            {
+                array_push($error, "your_password_must_contain_at_least_8_digits");
+            }
+            else if ((int)strlen($password) > 150) 
+            {
+                array_push($error, "your_password_must_not_be_greater_than_150_characters");
+            }
+            elseif(!preg_match("#[0-9]+#", $password)) 
+            {
+                array_push($error, "your_password_must_contain_at_least_1_number");
+            }
+            elseif(!preg_match("#[A-Z]+#", $password)) 
+            {
+                array_push($error, "your_password_must_contain_at_least_1_capital_letter");
+            }
+            elseif(!preg_match("#[a-z]+#", $password)) 
+            {
+                array_push($error, "your_password_must_contain_at_least_1_lowercase_letter");
+            }
+            elseif(!preg_match("#[\W]+#",$password) && $useSpecialCharacter) 
+            {
+                array_push($error, "your_password_must_contain_at_least_1_special_character");
+            }
+
+            if(!empty($error))
+            {
+                throw new ApiError($error);
+            }
         }
 
         

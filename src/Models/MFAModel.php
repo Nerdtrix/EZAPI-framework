@@ -1,7 +1,7 @@
 <?php
     namespace Models;
 
-    class Web2FAModel
+    class MFAModel
     {
         public ?int $id;
         public ?int $userId;

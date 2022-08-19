@@ -80,6 +80,7 @@
             $this->m_request->response($response);
         }
 
+
         /**
          * @api /auth/logout
          * @method POST
@@ -145,44 +146,135 @@
 
 
         /**
-         * @method POST
+         * @param object input
+         * @param string method
+         * @method POST Gets OTP email
+         * @method PATCH Updates password
+         * @method PUT updates password for logged users
+         * @return object
+         * @throws ApiError
+         * [Authorize(Roles = "admin, superuser")]
          */
-        public function register(object $input) : void 
+        public function passwordReset(object $input, string $method) : void
         {
+            $response = null;
+
             if(is_null($input))
             {
                 throw new Exception("Invalid request body");
             }
 
-            $this->m_authService->validateRegistrationFields($input);
+            /**
+             * Within this method the user can request a new OTP to proceed with 
+             * the password change. 
+             */
+            if($method == "POST")
+            {
+                if(empty($input->email))
+                {
+                    throw new ApiError("email_is_required");
+                }
 
-           
+                if(!$this->m_authService->requestOTPEmail($input->email))
+                {
+                    throw new ApiError("unable_to_send_otp");
+                }
 
-            
-            
+                $response = "otp_sent";
+
+            }
+            else if($method == "PATCH")
+            {
+                if(empty($input->otp))
+                {
+                    throw new ApiError("otp_is_required");
+                }
+
+                if($this->m_authService->changePassword($input, true))
+                {
+                    $response = "success";
+                }
+            }
+            else if($method == "PUT")
+            {
+                if(!$this->m_authService->isLogged())
+                {
+                    throw new ApiError("auth_required");
+                }
+
+                if($this->m_authService->changePassword($input))
+                {
+                    $response = "success";
+                }
+            }
+
+            if(is_null($response))
+            {
+                throw new ApiError("something_went_wrong");
+            }
+
+            $this->m_request->response($response);
         }
+
+       
 
         /**
-         * @method GET or POST
-         * @return string
+         * @api /auth/extend
+         * @method POST or GET
+         * @return object
          * @throws ApiError
-         * [Authorize(Roles = "admin, superuser")]
          */
-
-
-        
-
-        public function resetPsw() : void
-        {
-
-        }
-
-
-        
-
         #[Authorize]
         public function extend() : void 
         {
+            if($this->m_authService->extendSession())
+            {
+                $this->m_request->response();
+            }
+
+            throw new ApiError("something_went_wrong");
+        }
+
+
+         /**
+         * @method POST
+         */
+        public function register(object $input) : void 
+        {
+            $errors = [];
+
+            if(is_null($input))
+            {
+                throw new Exception("Invalid request body");
+            }
+
+            if(empty($input->fName)) $errors[] = [
+                "field" => "fName",
+                "message" => "first_name_is_required"];
+
+            if(empty($input->lName)) $errors[] = [
+                "field" => "lName",
+                "message" => "last_name_is_required"];
+
+            if(empty($input->username)) $errors[] = [
+                "field" => "username",
+                "message" => "username_is_required"];
+
+            if(empty($input->email)) $errors[] = [
+                "field" => "email",
+                "message" => "email_is_required"];
+
+            if(empty($input->password)) $errors[] = [
+                "field" => "password",
+                "message" => "password_required"];
+
+            if(empty($input->confirmPsw)) $errors[] = [
+                "field" => "confirmPsw",
+                "message" => "confirm_password_is_required"];
+
+            if(!empty($errors)) throw new ApiError($errors);
+
+            $this->m_authService->registerUser($input);
             
         }
     }

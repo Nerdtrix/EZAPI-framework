@@ -9,6 +9,7 @@
         function getUserByUsernameOrEmail(string $usernameOrEmail) : AuthModel;
         function getUserById(int $userId): UserModel;
         function updateUserStatus(int $userId, string $status) : bool;
+        function updatePasswordByUserId(int $userId, string $password) : bool;
     }
 
     class AuthRepository implements IAuthRepository
@@ -22,6 +23,19 @@
         public function __construct(IMysql $mySql)
         {
             $this->m_db = $mySql;
+        }
+
+        /**
+         * @param int userId
+         * @param string password
+         * @return bool
+         */
+        public function updatePasswordByUserId(int $userId, string $password) : bool
+        {
+            return $this->m_db->update(
+                query: "UPDATE {$this->userTable} SET password = ? WHERE id = ?",
+                bind: [$password, $userId]
+            );
         }
 
 

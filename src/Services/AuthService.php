@@ -12,7 +12,9 @@
       string $password,
       bool $rememberMe) : object;
     
-    
+    function requestOTPEmail(string $email) : bool;
+    function changePassword(object $input, bool $byOtp = false) : bool;
+    function extendSession() : bool;
     
     function verifyOTP(int $otp) : object;
 
@@ -22,9 +24,9 @@
 
     function isLogged() : bool;
 
-    function validateRegistrationFields(object $input) : void;
-
     function getLoggedUserInfo() : UserModel;
+
+    function registerUser(object $input) : bool;
   }
     
 
@@ -40,7 +42,7 @@
 
     #service
     private IDevicesService $m_deviceService;
-    private IWeb2FAService $m_web2FaService;
+    private IMFAService $m_MFAService;
     private ISessionService $m_sessionService;
     private IPasswordService $m_passwordService;
 
@@ -50,7 +52,7 @@
       IAuthRepository $authRepository, 
       IUserRepository $userRepository,
       IDevicesService $deviceService,
-      IWeb2FAService $web2faService,
+      IMFAService $MFAService,
       ISessionService $sessionService,
       IPasswordService $passwordService
     )
@@ -58,7 +60,7 @@
       $this->m_authRepository = $authRepository;
       $this->m_userRepository = $userRepository;
       $this->m_deviceService = $deviceService;
-      $this->m_web2FaService = $web2faService;
+      $this->m_MFAService = $MFAService;
       $this->m_sessionService = $sessionService;
       $this->m_passwordService = $passwordService;
     }
@@ -107,7 +109,7 @@
       if($this->m_authModel->isTwoFactorAuth)
       {
         #Send a new OTP to the email address
-        if($this->m_web2FaService->createOtpMailSessionToken(
+        if($this->m_MFAService->createOtpMailSessionToken(
           userInfo: $this->m_authModel, 
           rememberMe: $rememberMe))
         {
@@ -189,10 +191,10 @@
     public function verifyOTP(int $otp) : object 
     {
       #validate OTP
-      $tokenObject = $this->m_web2FaService->validateOTP(otp: $otp);
+      $userId = $this->m_MFAService->validateOTP(otp: $otp);
 
       #Get user object
-      $this->m_userModel = $this->m_userRepository->getById(userId: $tokenObject->userId);
+      $this->m_userModel = $this->m_userRepository->getById(userId: $userId);
 
       #return user Object
       return $this->m_userModel;
@@ -201,52 +203,105 @@
     
     public function resendOTP() : bool
     {
-      return $this->m_web2FaService->resendOTPMail();
+      return $this->m_MFAService->resendOTPMail();
     }
 
-    
+
+    /**
+     * @param string email
+     * @return bool
+     */
+    public function requestOTPEmail(string $email) : bool
+    {
+      $this->m_authModel = $this->m_authRepository->getUserByUsernameOrEmail($email);
+
+      #User not found
+      if(empty($this->m_authModel->id))
+      {
+        throw new ApiError(ErrorMessage::INVALID_INPUT);
+      }
+
+      return $this->m_MFAService->sendOTPEmail($this->m_authModel);
+    }
+
+
+    /**
+     * @param object input
+     * @return bool
+     */
+    public function changePassword(object $input, bool $byOtp = false) : bool
+    {
+      if(empty($input->password))
+      {
+        throw new ApiError("password_is_required");
+      }
+
+      if(empty($input->confirmPassword))
+      {
+        throw new ApiError("confirmPassword_is_required");
+      }
+
+      if($input->password != $input->confirmPassword)
+      {
+        throw new ApiError("the_password_does_not_match");
+      }
+
+      $this->passwordService->weekPasswordValidation($input->password);
+
+      $password = $this->passwordService->securePassword($input->password);
+
+      if($byOtp)
+      {
+        $userId = $this->m_MFAService->validateOTP($input->opt);
+      }
+      else
+      {
+        $userId = $this->m_sessionService->userId();
+      }
+
+      return $this->m_authRepository->updatePasswordByUserId(
+        userId: $userId,
+        password: $password
+      );
+    }
+
+
+
+    public function extendSession() : bool
+    {
+      return $this->m_sessionService->extend();
+    }
+
+
     
 
     /**
      * @param object input
      * @throws ApiError exceptions
      */
-    public function validateRegistrationFields(object $input) : void
+    public function registerUser(object $input) : bool
     {
       $errors = [];
-
-      #use this format for validation
-      // "errors" : [ {
-      //   "field" : "phoneNumber",
-      //   "message" : "Phone number already exists for another user."
-      // } ],
       
-      if(empty($input->fName)) $errors[] = ["fName" => "first_name_is_required"];
+      $userObj = $this->m_authRepository->getUserByUsernameOrEmail($input->email);
 
-      if(empty($input->lName)) $errors[] = ["lName" => "last_name_is_required"];
-
-      if(empty($input->username)) $errors[] = ["username" => "username_is_required"];
-
-      if(empty($input->email)) $errors[] = ["email" => "email_is_required"];
-
-      if(empty($input->password)) $errors[] = ["password" => "password_required"];
-
-      if(empty($input->confirmPsw)) $errors[] = ["confirmPsw" => "confirm_password_is_required"];
+      if(!empty($userObj->id)) $errors[] = [
+        "field" => "email",
+        "message" => "email_already_exits"];
+    
+      $userObj = $this->m_authRepository->getUserByUsernameOrEmail($input->username);
+      
+      if(!empty($userObj->id)) $errors[] = [
+        "field" => "username",
+        "message" => "username_already_exits"];
 
       if(!empty($errors)) throw new ApiError($errors);
-      
-      // $userObj = $this->m_authRepository->getUserByEmail(email: $input->email);
 
-      // if(!empty($userObj->id)) ["email" => "email_already_exits"];
-    
-      // $userObj = $this->m_authRepository->getUserByUsername(username: $input->username);
-      
-      // if(!empty($userObj->id)) ["username" => "username_already_exits"];
+      //week password validation
 
-      // if(!empty($errors)) throw new ApiError($errors);
+      //add user
 
-
-
+      return true;
       
     }
 

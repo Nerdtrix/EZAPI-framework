@@ -1,23 +1,25 @@
 <?php
     namespace Repositories;
     use Core\Database\Mysql\IMysql;
-    use Models\Web2FAModel;
+    use Models\MFAModel;
 
-    interface IWeb2FARepository
+    interface IMFARepository
     {
-        function getByOtp(int $otp): \Models\Web2FAModel;
+        function saveOtp(int $userId, int $otp, string $expiresAt) : bool;
+
+        function getByOtp(int $otp): \Models\MFAModel;
 
         function deleteByOtp(int $otp) : bool;
 
-        function saveOtp(int $userId, int $otp, string $expiresAt) : bool;
+       
 
         function updateOtpByUserId(int $userId, int $otp, string $expiresAt) : bool;
     }
 
-    class Web2FARepository implements IWeb2FARepository
+    class MFARepository implements IMFARepository
     {
         private IMysql $m_db;
-        private string $table = "web2fa";
+        private string $table = "mfa";
         
 
         public function __construct(IMysql $mySql)
@@ -25,24 +27,40 @@
             $this->m_db = $mySql;
         }
 
+        /**
+         * @param int userId
+         * @param int otp
+         * @param string expiresAt
+         * @return bool
+         */
         public function saveOtp(int $userId, int $otp, string $expiresAt) : bool
         {
+            $query = "INSERT INTO {$this->table} SET userId = ?, otp = ?, expiresAt = ?";
+
             return $this->m_db->insert(
-                query: "INSERT INTO {$this->table} SET userId = ?, otp = ?, expiresAt = ?",
-                bind: [$userId, $otp, $expiresAt]
+                query: $query,
+                bind: [
+                    $userId, 
+                    $otp, 
+                    date($this->m_db::DATE_TIME_FORMAT, $expiresAt)
+                ]
             );
         }
 
+
+
+
+
         /**
          * @param int getByOtpId
-         * @return Web2FAModel
+         * @return MFAModel
          */
-        public function getByOtp(int $otp): Web2FAModel
+        public function getByOtp(int $otp): MFAModel
         {
             return $this->m_db->select(
                 query: "SELECT * FROM {$this->table} WHERE otp = ? ORDER BY id DESC LIMIT 1",
                 bind: [$otp],
-                model: Web2FAModel::class
+                model: MFAModel::class
             );
         }
 

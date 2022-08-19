@@ -35,7 +35,7 @@
             #Services
             \Services\ISessionService::class => \Services\SessionService::class,
             \Services\IAuthService::class =>  \Services\AuthService::class,
-            \Services\IWeb2FAService::class => \Services\Web2FAService::class,
+            \Services\IMFAService::class => \Services\MFAService::class,
             \Services\IDevicesService::class => \Services\DevicesService::class,
             \Services\IUserService::class => \Services\UserService::class,
             \Services\IPasswordService::class => \Services\PasswordService::class

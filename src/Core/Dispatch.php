@@ -73,9 +73,12 @@
              */
             $routeInstance = (new DI)->inject($route, $method);
 
-            $requestData = (new Request)->data();
+            #receive the payloads and pass them to the target method
+            $requestPayload = (new Request)->data();
 
-            $routeInstance->$method($requestData);
+            $requestMethod = $_SERVER["REQUEST_METHOD"];
+
+            $routeInstance->$method($requestPayload, $requestMethod);
         }
     }
 ?>
