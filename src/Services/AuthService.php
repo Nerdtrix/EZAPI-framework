@@ -11,21 +11,14 @@
       string $usernameOrEmail, 
       string $password,
       bool $rememberMe) : object;
-    
     function requestOTPEmail(string $email) : bool;
     function changePassword(object $input, bool $byOtp = false) : bool;
     function extendSession() : bool;
-    
     function verifyOTP(int $otp) : object;
-
     function endSession() : bool;
-
     function resendOTP() : bool;
-
     function isLogged() : bool;
-
     function getLoggedUserInfo() : UserModel;
-
     function registerUser(object $input) : bool;
   }
     
@@ -218,7 +211,9 @@
       #User not found
       if(empty($this->m_authModel->id))
       {
-        throw new ApiError(ErrorMessage::INVALID_INPUT);
+        throw new ApiError([
+          "field" => "email",
+          "message" => "email_is_required"]);
       }
 
       return $this->m_MFAService->sendOTPEmail($this->m_authModel);
@@ -233,36 +228,63 @@
     {
       if(empty($input->password))
       {
-        throw new ApiError("password_is_required");
+        throw new ApiError([
+          "field" => "password",
+          "message" => "password_is_required"
+        ]);
       }
 
       if(empty($input->confirmPassword))
       {
-        throw new ApiError("confirmPassword_is_required");
+        throw new ApiError([
+          "field" => "confirmPassword",
+          "message" => "confirmPassword_is_required"
+        ]);
       }
 
       if($input->password != $input->confirmPassword)
       {
-        throw new ApiError("the_password_does_not_match");
+        throw new ApiError([
+          [
+            "field" => "password",
+            "message" => "the_password_does_not_match"
+          ],
+          [
+            "field" => "confirmPassword",
+            "message" => "the_password_does_not_match"
+          ],
+
+        ]);
       }
 
-      $this->passwordService->weekPasswordValidation($input->password);
+      #secure password validations
+      $this->m_passwordService->weekPasswordValidation($input->password);
 
-      $password = $this->passwordService->securePassword($input->password);
+      #hash and encrypt password
+      $password = $this->m_passwordService->securePassword($input->password);
 
       if($byOtp)
       {
-        $userId = $this->m_MFAService->validateOTP($input->opt);
+        $userId = $this->m_MFAService->validateOTP($input->otp);
       }
       else
       {
         $userId = $this->m_sessionService->userId();
       }
 
-      return $this->m_authRepository->updatePasswordByUserId(
+      if($this->m_authRepository->updatePasswordByUserId(
         userId: $userId,
         password: $password
-      );
+      ))
+      {
+        #Get user info
+        $userInfo = $this->m_authRepository->getUserById($userId);
+
+        #send password reset email
+        $this->m_passwordService->sendPasswordResetEmail($userInfo->fName, $userInfo->email);
+      }
+
+      return true;
     }
 
 
@@ -273,8 +295,6 @@
     }
 
 
-    
-
     /**
      * @param object input
      * @throws ApiError exceptions
@@ -282,6 +302,32 @@
     public function registerUser(object $input) : bool
     {
       $errors = [];
+
+      if(empty($input->fName)) $errors[] = [
+        "field" => "fName",
+        "message" => "first_name_is_required"];
+
+      if(empty($input->lName)) $errors[] = [
+        "field" => "lName",
+        "message" => "last_name_is_required"];
+
+      if(empty($input->username)) $errors[] = [
+        "field" => "username",
+        "message" => "username_is_required"];
+
+      if(empty($input->email)) $errors[] = [
+        "field" => "email",
+        "message" => "email_is_required"];
+
+      if(empty($input->password)) $errors[] = [
+        "field" => "password",
+        "message" => "password_required"];
+
+      if(empty($input->confirmPsw)) $errors[] = [
+        "field" => "confirmPsw",
+        "message" => "confirm_password_is_required"];
+
+      if(!empty($errors)) throw new ApiError($errors);
       
       $userObj = $this->m_authRepository->getUserByUsernameOrEmail($input->email);
 
@@ -297,7 +343,9 @@
 
       if(!empty($errors)) throw new ApiError($errors);
 
-      //week password validation
+      $this->passwordService->weekPasswordValidation($input->password);
+
+      $password = $this->m_passwordService->securePassword($input->password);
 
       //add user
 

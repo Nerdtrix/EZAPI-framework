@@ -212,7 +212,7 @@
             }
 
             #Calculate expiration time
-            $sessionEnd = CURRENT_TIME + (self::USER_SESSION_EXPIRY * 60);
+            $sessionEnd = CURRENT_TIME + (self::USER_SESSION_EXPIRY * ONE_MINUTE);
 
             #Extend session
             $this->m_sessionRepository->extendExpirationTime(

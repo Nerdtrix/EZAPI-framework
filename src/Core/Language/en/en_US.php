@@ -28,7 +28,11 @@ return [
     "to_unlock_your_account"                        => "To unlock your account please contact our tech support.",
     "for_your_security_your_account"                => "For your security, your account will remain locked until you get in touch with us.",
     "we_will_be_happy_to_assist"                    => "We will be happy to assist you regarding this matter.",
-    "account_locked"                                => "Account locked"
+    "account_locked"                                => "Account locked",
+    "your_password_changed"                         => "Your password changed",
+    "the_password_for_your_account"                 => "The password for your account",
+    "was_just_changed"                              => "was just changed",
+    "if_this_was_not_you_your_account"              => "If this wasn't you, your account has been compromised."
 
 ];
 

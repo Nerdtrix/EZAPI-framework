@@ -29,7 +29,11 @@ return [
     "to_unlock_your_account"                        => "Para desbloquear su cuenta, póngase en contacto con nuestro soporte técnico.",
     "for_your_security_your_account"                => "Por su seguridad, su cuenta permanecerá bloqueada hasta que se comunique con nosotros.",
     "we_will_be_happy_to_assist"                    => "Estaremos encantados de ayudarle con respecto a este asunto.",
-    "Account locked"                                => "Cuenta bloqueada"
+    "Account locked"                                => "Cuenta bloqueada",
+    "your_password_changed"                         => "Tu contraseña cambió",
+    "the_password_for_your_account"                 => "La contraseña de tu cuenta",
+    "was_just_changed"                              => "fue cambiado recientemente",
+    "if_this_was_not_you_your_account"              => "Si no fuiste tú, tu cuenta ha sido comprometida."
 ];
 
 ?>

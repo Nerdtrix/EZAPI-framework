@@ -26,7 +26,7 @@
             \Core\Language\ITranslator::class => \Core\Language\Translator::class,
             
             #Repositories
-            \Repositories\IWeb2FARepository::class => \Repositories\Web2FARepository::class,
+            \Repositories\IMFARepository::class => \Repositories\MFARepository::class,
             \Repositories\ISessionRepository::class => \Repositories\SessionRepository::class,
             \Repositories\IUserRepository::class => \Repositories\UserRepository::class,
             \Repositories\IAuthRepository::class => \Repositories\AuthRepository::class,

@@ -13,7 +13,6 @@
     {
         private UserModel $m_userModel;
 
-
         private IUserRepository $m_userRepository;
 
         private ISessionService $m_sessionService;

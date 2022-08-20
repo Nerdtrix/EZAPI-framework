@@ -8,12 +8,14 @@
     use Repositories\IAuthRepository;
     use Core\Mail\Templates\LoginAttempt\LoginAttempt;
     use Core\Mail\Templates\AccountLocked\AccountLocked;
+    use Core\Mail\Templates\PasswordReset\PasswordReset;
     
     interface IPasswordService
     {
         function validatePassword(string $inputPassword, AuthModel $authModel) : void;
         function weekPasswordValidation(string $password, bool $useSpecialCharacter = false) :  void;
         function securePassword(string $password) : string;
+        function sendPasswordResetEmail(string $name, string $email) : void;
     }
 
     class PasswordService implements IPasswordService
@@ -49,6 +51,27 @@
 
 
         /**
+         * @param string name
+         * @param string email
+         */
+        public function sendPasswordResetEmail(string $name, string $email) : void
+        {
+            $this->m_email->to = [$name => $email];
+
+            $this->m_email->subject = $this->m_lang->translate("your_password_changed");
+
+            $this->m_email->htmlTemplate = sprintf("PasswordReset%sPasswordReset.phtml", SLASH);
+
+            #Fill template variables
+            PasswordReset::$fName = $name;
+            PasswordReset::$email = $email;
+        
+            #Send mail
+            $this->m_email->send();
+        }
+
+
+        /**
          * @param string password
          * @return string
          */
@@ -68,36 +91,39 @@
          */
         public function weekPasswordValidation(string $password, bool $useSpecialCharacter = false) :  void
         {
-            $error = [];
+            $error = null;
 
             if ((int)strlen($password) < 8) 
             {
-                array_push($error, "your_password_must_contain_at_least_8_digits");
+                $error = "your_password_must_contain_at_least_8_digits";
             }
             else if ((int)strlen($password) > 150) 
             {
-                array_push($error, "your_password_must_not_be_greater_than_150_characters");
+                $error = "your_password_must_not_be_greater_than_150_characters";
             }
             elseif(!preg_match("#[0-9]+#", $password)) 
             {
-                array_push($error, "your_password_must_contain_at_least_1_number");
+                $error = "your_password_must_contain_at_least_1_number";
             }
             elseif(!preg_match("#[A-Z]+#", $password)) 
             {
-                array_push($error, "your_password_must_contain_at_least_1_capital_letter");
+                $error = "your_password_must_contain_at_least_1_capital_letter";
             }
             elseif(!preg_match("#[a-z]+#", $password)) 
             {
-                array_push($error, "your_password_must_contain_at_least_1_lowercase_letter");
+                $error = "your_password_must_contain_at_least_1_lowercase_letter";
             }
             elseif(!preg_match("#[\W]+#",$password) && $useSpecialCharacter) 
             {
-                array_push($error, "your_password_must_contain_at_least_1_special_character");
+                $error = "your_password_must_contain_at_least_1_special_character";
             }
 
-            if(!empty($error))
+            if(!is_null($error))
             {
-                throw new ApiError($error);
+                throw new ApiError([
+                    "field" => "password",
+                    "message" => $error
+                ]);
             }
         }
 

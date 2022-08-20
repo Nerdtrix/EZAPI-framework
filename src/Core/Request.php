@@ -176,12 +176,30 @@
             #Add HTTP response code
             http_response_code($code);
 
+            #convert to standard format
+
+            if(is_array($response))
+            {
+                if(!array_key_exists(0, $response))
+                {
+                    $response = [$response];
+                }
+            }
+            else
+            {
+                $response = [
+                    Constant::MESSAGE => $response
+                ];
+            }
+
+            
+
             if($code >= 400)
             {
                 $response = [
                     Constant::SUCCESS => false,
                     Constant::CODE => $code,
-                    Constant::ERRORS => $response
+                    Constant::ERROR => $response
                     
                 ];
             }
@@ -191,7 +209,7 @@
                 $response = [
                     Constant::SUCCESS => true,
                     Constant::CODE => $code,
-                    Constant::RESULT => $response
+                    Constant::PAYLOAD => $response
                 ];
             }
 

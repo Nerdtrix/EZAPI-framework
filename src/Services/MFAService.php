@@ -112,26 +112,30 @@
 
         if(empty($this->m_web2FAModel->id))
         {
-            throw new ApiError("invalid_otp");
+            throw new ApiError([
+                "field" => "otp",
+                "message" => "invalid_otp"
+            ]);
         }
 
-        #Calculate expiration time
-        $expirationTime = CURRENT_TIME + (self::OTP_EXPIRATION_MINUTES * 60);
 
         #Validate time
-        if(strtotime(CURRENT_TIME) > $expirationTime)
+        if(strtotime($this->m_web2FAModel->expiresAt) >= CURRENT_TIME)
         {
             #delete token
             $this->m_MFaRepository->deleteByOtp(otp: $otp);
 
-            throw new ApiError("expired_otp");
+            #return userId
+            return $this->m_web2FAModel->userId;
         }
 
         #delete token
         $this->m_MFaRepository->deleteByOtp(otp: $otp);
 
-        #return userId
-        return $this->m_web2FAModel->userId;
+        throw new ApiError([
+            "field" => "otp",
+            "message" => "expired_otp"
+        ]);
     }
 
 
