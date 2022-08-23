@@ -2,6 +2,17 @@
     namespace Core\Mail;
     use Exception;
 
+    define("PHP_CRLF", "\r\n");
+
+    interface ISocket
+    {
+        public function open(string $host, int $port, float $timeout) : void;
+        public function readString(int $lenToRead) : string;
+        public function writeString(string $data) : void;
+        public function enableCrypto() : void;
+        public function close() : void;
+    }
+
     class Socket implements ISocket
     {
         private $connection; // resource.

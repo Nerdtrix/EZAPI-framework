@@ -3,9 +3,11 @@
     use Core\Database\Mysql\IMysql;
     use Models\{AuthModel, UserModel, StatusModel};
     use Core\Exceptions\DBError;
+use Exception;
 
     interface IAuthRepository
     {
+        function addNewUser(object $user) : int;
         function getUserByUsernameOrEmail(string $usernameOrEmail) : AuthModel;
         function getUserById(int $userId): UserModel;
         function updateUserStatus(int $userId, string $status) : bool;
@@ -23,6 +25,58 @@
         public function __construct(IMysql $mySql)
         {
             $this->m_db = $mySql;
+        }
+
+        /**
+         * @param object user
+         * @return int userId
+         */
+        public function addNewUser(object $user) : int
+        {
+            $status =  $this->m_db->select(
+                query: "SELECT id FROM {$this->statusTable} WHERE STATUS = ?",
+                bind: [$user->status]
+            );
+
+            if(empty($status->id))
+            {
+                throw new Exception("invalid user status");
+            }
+
+            $role =  $this->m_db->select(
+                query: "SELECT id FROM {$this->roleTable} WHERE ROLE = ?",
+                bind: [$user->role]
+            );
+
+            if(empty($role->id))
+            {
+                throw new Exception("invalid user role");
+            }
+
+            //save all
+            $insertQuery = "INSERT INTO {$this->userTable} SET 
+                fName = ?, 
+                lName = ?, 
+                email = ?, 
+                username = ?, 
+                locale = ?,
+                roleId = ?,
+                statusId = ?,
+                ";
+
+
+            return $this->m_db->insert(
+                query: $insertQuery,
+                bind: [
+                    $user->fName,
+                    $user->lName,
+                    $user->email,
+                    $user->username,
+                    $user->locale,
+                    $status->id,
+                    $role->id
+                ]
+            );
         }
 
         /**

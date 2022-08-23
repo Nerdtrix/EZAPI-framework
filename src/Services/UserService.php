@@ -1,5 +1,6 @@
 <?php
     namespace Services;
+    use Services\Auth\ISessionService;
     use Core\Exceptions\ApiError;
     use Models\{UserModel};
     use Repositories\{IUserRepository};

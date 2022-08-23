@@ -1,5 +1,5 @@
 <?php
-    namespace Services;
+    namespace Services\Auth;
 
     enum ErrorMessage : string
     {
@@ -12,5 +12,6 @@
         const UNABLE_TO_CREATE_SESSION = "unable_to_create_otp_session";
         const UNABLE_TO_AUTHENTICATE = "unable_to_authenticate";
         const SOMETHING_WENT_WRONG = "something_went_wrong";
+        const ACCOUNT_DELETED = "account_deleted";
     }
 ?>

@@ -1,6 +1,11 @@
 <?php
     namespace Core\Mail;
 
+    interface IFileReader
+    {
+        public function read(string $path) : string;
+    }
+
     class FileReader implements IFileReader
     {
         public function read(string $path) : string

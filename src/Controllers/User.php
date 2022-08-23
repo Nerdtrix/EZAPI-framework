@@ -32,7 +32,7 @@
         
         public function update(object $input) : void
         {
-
+            
         }
 
        

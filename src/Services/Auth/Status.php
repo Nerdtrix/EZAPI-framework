@@ -1,5 +1,5 @@
 <?php
-    namespace Services;
+    namespace Services\Auth;
 
     enum Status : string
     {

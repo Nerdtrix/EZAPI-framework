@@ -1,6 +1,30 @@
 <?php
     namespace Core\Mail;
 
+    interface IMailBuilderWriter
+    {
+        public function writeHeader(string $data) : void;
+        public function writeBody(string $data) : void;
+    }
+
+    interface IMailBuilder
+    {
+        public function build(
+            string $id,
+            string $subject,
+            string $message,
+            array $from,
+            array $to,
+            array $cc,
+            array $bcc,
+            array $replyTo,
+            array $attachments,
+            string $bounceAddress,
+            string $appName,
+            IMailBuilderWriter $writer
+        ) : void;
+    }
+
     class MailBuilder implements IMailBuilder
     {
         private IFileReader $fileReader;

@@ -1,5 +1,5 @@
 <?php
-    namespace Services;
+    namespace Services\Auth;
     use Core\{ICookie, ICrypto};
     use Core\Exceptions\ApiError;
     use Exception;

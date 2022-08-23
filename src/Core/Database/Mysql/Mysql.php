@@ -9,7 +9,7 @@
     {
         function db() : \PDO;
 
-        function select(string $query, array $bind, string $model, string $fetchMode = \PDO::FETCH_OBJ) : object;
+        function select(string $query, array $bind, string $model = null, string $fetchMode = \PDO::FETCH_OBJ) : object;
 
         function insert(string $query, array $bind) : int;
 
@@ -45,12 +45,11 @@
          * @param string fetchMode (optional)
          * @return object
          */
-        public function select(string $query, array $bind, string $model, string $fetchMode = PDO::FETCH_OBJ) : object
+        public function select(string $query, array $bind, string $model = null, string $fetchMode = PDO::FETCH_OBJ) : object
         {
             #validate data
             if(empty($query)) throw new Exception("A query is required");
             if(empty($bind)) throw new Exception("you must bind your data");
-            if(empty($model)) throw new Exception("A data model is required");
             if(!class_exists($model)) throw new Exception("the model class is invalid or does not exists");
 
             
@@ -74,6 +73,11 @@
             if($stmt->rowCount() <= 1)
             {
                 $results = $stmt->fetch();
+
+                if(is_null($model))
+                {
+                    return $results;
+                }
 
                 #new Instance of a model
                 $modelObject = new $model();
@@ -100,6 +104,11 @@
             else
             {
                 $results = $stmt->fetchAll();
+
+                if(is_null($model))
+                {
+                    return $results;
+                }
 
                 $data = [];
 

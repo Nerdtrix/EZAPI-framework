@@ -12,6 +12,8 @@
         public bool $isTwoFactorAuth;
         public string $email;
         public string $username;
+        public string $phoneNumber;
         public string $locale;
+        public string $deletedAt;
     }
 ?>

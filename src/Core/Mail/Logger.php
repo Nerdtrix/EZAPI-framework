@@ -1,6 +1,10 @@
 <?php
     namespace Core\Mail;
 
+    interface ILogger
+    {
+        public function log(string $format, ...$values) : void;
+    }
     class Logger implements ILogger
     {
         public function log(string $format, ...$values) : void

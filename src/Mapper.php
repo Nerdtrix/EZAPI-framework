@@ -33,12 +33,12 @@
             \Repositories\IDevicesRepository::class => \Repositories\DevicesRepository::class,
 
             #Services
-            \Services\ISessionService::class => \Services\SessionService::class,
-            \Services\IAuthService::class =>  \Services\AuthService::class,
-            \Services\IMFAService::class => \Services\MFAService::class,
-            \Services\IDevicesService::class => \Services\DevicesService::class,
+            \Services\Auth\ISessionService::class => \Services\Auth\SessionService::class,
+            \Services\Auth\IAuthService::class =>  \Services\Auth\AuthService::class,
+            \Services\Auth\IMFAService::class => \Services\Auth\MFAService::class,
+            \Services\Auth\IDevicesService::class => \Services\Auth\DevicesService::class,
             \Services\IUserService::class => \Services\UserService::class,
-            \Services\IPasswordService::class => \Services\PasswordService::class
+            \Services\Auth\IPasswordService::class => \Services\Auth\PasswordService::class
         ];
     }
 ?>

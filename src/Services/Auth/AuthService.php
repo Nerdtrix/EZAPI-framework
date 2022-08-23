@@ -1,7 +1,8 @@
 <?php
-  namespace Services;
+  namespace Services\Auth;
   use Core\Exceptions\ApiError;
-  use Models\{AuthModel, UserModel};
+use Core\EZENV;
+use Models\{AuthModel, UserModel};
   use Repositories\{IAuthRepository, IUserRepository};
 
 
@@ -19,7 +20,7 @@
     function resendOTP() : bool;
     function isLogged() : bool;
     function getLoggedUserInfo() : UserModel;
-    function registerUser(object $input) : bool;
+    function registerUser(object $input) : void;
   }
     
 
@@ -79,6 +80,11 @@
       if(empty($this->m_authModel->id))
       {
         throw new ApiError(ErrorMessage::INVALID_INPUT);
+      }
+
+      if(!is_null($this->m_authModel->deletedAt))
+      {
+        throw new ApiError(ErrorMessage::ACCOUNT_DELETED);
       }
 
       if($this->m_authModel->status == Status::BANNED)
@@ -299,7 +305,7 @@
      * @param object input
      * @throws ApiError exceptions
      */
-    public function registerUser(object $input) : bool
+    public function registerUser(object $input) : void
     {
       $errors = [];
 
@@ -347,9 +353,28 @@
 
       $password = $this->m_passwordService->securePassword($input->password);
 
-      //add user
+      $userId = $this->m_authRepository->addNewUser((object)[
+        "fName" => $input->fName,
+        "lName" => $input->lName,
+        "username" => $input->username,
+        "email" => $input->email,
+        "password" => $password,
+        "status" => Status::INACTIVE,
+        "role" => "USER",
+        "locale" => EZENV["DEFAULT_LOCALE"]
+      ]);
 
-      return true;
+      if($userId == 0)
+      {
+        throw new ApiError("unable_to_add_user");
+      }
+
+      if($this->requestOTPEmail($input->email))
+      {
+        throw new ApiError("otp_sent");
+      }
+
+      throw new ApiError("something went wrong");
       
     }
 

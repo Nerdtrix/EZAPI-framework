@@ -1,5 +1,5 @@
 <?php
-    namespace Services;
+    namespace Services\Auth;
     use \stdClass;
     use Core\{IHelper, ICookie, ICrypto};
     use Core\Mail\EZMAIL;

@@ -1,5 +1,5 @@
 <?php
-    namespace Services;
+    namespace Services\Auth;
     use Core\{ICookie, IHelper, ICrypto};
     use Core\Exceptions\ApiError;
     use Core\Mail\EZMAIL;

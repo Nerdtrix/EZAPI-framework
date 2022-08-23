@@ -1,5 +1,5 @@
 <?php
-    namespace Services;
+    namespace Services\Auth;
 
     use Core\Exceptions\ApiError;
     use Core\Ihelper;
@@ -117,7 +117,6 @@
                 "message" => "invalid_otp"
             ]);
         }
-
 
         #Validate time
         if(strtotime($this->m_web2FAModel->expiresAt) >= CURRENT_TIME)

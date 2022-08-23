@@ -1,6 +1,11 @@
 <?php
     namespace Core\Mail;
 
+    interface IMailIdGenerator
+    {
+        public function generate() : string;
+    }
+
     class MailIdGenerator implements IMailIdGenerator
     {
         private function getRandomStr(int $n) : string

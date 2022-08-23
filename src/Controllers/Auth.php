@@ -2,7 +2,7 @@
     namespace Controllers;
     use Core\{IRequest};
     use Attributes\Authorize;
-    use Services\{IAuthService};
+    use Services\Auth\{IAuthService};
     use Core\Exceptions\ApiError;
     use Core\Language\ITranslator;
     use Exception;
@@ -47,11 +47,23 @@
          * @return object
          * @throws ApiError
          */
-        public function Login(object $input) : void
+        public function Login(object $input, string $method) : void
         { 
             if($this->m_authService->isLogged())
             {
                 $response = $this->m_authService->getLoggedUserInfo();
+
+                $this->m_request->response($response);
+            }
+
+            if($method == "PUT")
+            {
+                if(empty($input->otp))
+                {
+                    throw new ApiError("otp_is_required");
+                }
+
+                $response = $this->m_authService->verifyOTP(otp: (int)$input->otp);
 
                 $this->m_request->response($response);
             }
@@ -96,34 +108,6 @@
         }
 
 
-        /**
-         * @api route /auth/web2fa
-         * @method POST
-         * @param object $input {otp: int}
-         * @return object
-         * @throws ApiError
-         */
-        public function web2fa(object $input) : void
-        {
-            if($this->m_authService->isLogged())
-            {
-                throw new ApiError("already_logged");
-            }
-
-            if(is_null($input))
-            {
-                throw new Exception("Invalid request body");
-            }
-            
-            if(empty($input->otp))
-            {
-                throw new ApiError("otp_is_required");
-            }
-
-            $response = $this->m_authService->verifyOTP(otp: (int)$input->otp);
-
-            $this->m_request->response($response);
-        }
 
 
         /**
@@ -239,16 +223,27 @@
          /**
          * @method POST
          */
-        public function register(object $input) : void 
+        public function register(object $input, string $method) : void 
         {
-
             if(is_null($input))
             {
                 throw new Exception("Invalid request body");
             }
 
-            $this->m_authService->registerUser($input);
-            
+            if($method == "POST")
+            {
+                $this->m_authService->registerUser($input);
+            }
+
+            if($method == "PUT")
+            {
+                if(empty($input->otp))
+                {
+
+                }
+
+                //otp
+            }
         }
     }
 ?>
