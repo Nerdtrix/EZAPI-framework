@@ -56,31 +56,40 @@
                 $this->m_request->response($response);
             }
 
+            if(is_null($input))
+            {
+                throw new ApiError("Invalid_request_body");
+            }
+
             if($method == "PUT")
             {
                 if(empty($input->otp))
                 {
-                    throw new ApiError("otp_is_required");
-                }
+                    throw new ApiError(["fields" => [
+                        "otp" => "otp_required"
+                    ]]);
+                }                
 
                 $response = $this->m_authService->verifyOTP(otp: (int)$input->otp);
 
                 $this->m_request->response($response);
             }
+           
+            $errors = ["fields" => []];
 
-            if(is_null($input))
-            {
-                throw new ApiError("Invalid_request_body");
-            }
-            
             if(empty($input->usernameOrEmail))
             {
-                throw new ApiError("username_or_email_is_required");
+                $errors["fields"]["usernameOrEmail"] = "username_or_email_is_required";
             }
 
             if(empty($input->password))
             {
-                throw new ApiError("password_is_required");
+                $errors["fields"]["password"] = "password_is_required";
+            }
+
+            if(!empty($errors["fields"]))
+            {
+                throw new ApiError($errors);
             }
 
             $response = $this->m_authService->authenticate(
@@ -173,7 +182,9 @@
             {
                 if(empty($input->otp))
                 {
-                    throw new ApiError("otp_is_required");
+                    throw new ApiError(["fields" => [
+                        "otp" => "otp_required"
+                    ]]);
                 }
 
                 if($this->m_authService->changePassword($input, true))

@@ -23,7 +23,7 @@
           $response = [
             Constant::STATUS => Constant::ERROR,
             Constant::CODE => 500,
-            Constant::ERRORS => [
+            Constant::ERRORS => (object)[
               Constant::MESSAGE => $ex->getMessage(),
               self::EXCEPTION => get_class($ex),
               self::LOCATION => $ex->getFile(),

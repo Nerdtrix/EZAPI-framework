@@ -120,9 +120,8 @@
 
             if(!is_null($error))
             {
-                throw new ApiError([
-                    "field" => "password",
-                    "message" => $error
+                throw new ApiError(["fields" => [
+                    "password" => $error ]
                 ]);
             }
         }
@@ -144,7 +143,11 @@
             {
                 $this->recordfailAttempt($authModel);
 
-                throw new ApiError(ErrorMessage::INVALID_INPUT);
+                #return both fields to prevent unauthorized users from knowing which one is right or wrong.
+                throw new ApiError(["fields" => [
+                    "usernameOrEmail" => ErrorMessage::INVALID_INPUT,
+                    "password" => ErrorMessage::INVALID_INPUT]
+                ]);
             }
         }
 

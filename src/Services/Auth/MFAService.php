@@ -112,10 +112,9 @@
 
         if(empty($this->m_web2FAModel->id))
         {
-            throw new ApiError([
-                "field" => "otp",
-                "message" => "invalid_otp"
-            ]);
+            throw new ApiError(["fields" => [
+                "otp" => "invalid_otp"
+            ]]);
         }
 
         #Validate time
@@ -131,10 +130,9 @@
         #delete token
         $this->m_MFaRepository->deleteByOtp(otp: $otp);
 
-        throw new ApiError([
-            "field" => "otp",
-            "message" => "expired_otp"
-        ]);
+        throw new ApiError(["fields" => [
+            "otp" => "expired_otp"
+        ]]);
     }
 
 
@@ -159,7 +157,7 @@
             if(!$this->m_MFaRepository->saveOtp(
                 userId: $userInfo->id, 
                 otp: $otp, 
-                expiresAt: strtotime($expirationTime)))
+                expiresAt: $expirationTime))
             {
                 throw new ApiError("unable_to_generate_OTP");
             }

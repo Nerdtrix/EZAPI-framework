@@ -1,7 +1,8 @@
 <?php
     namespace Repositories;
     use Core\Database\Mysql\IMysql;
-    use Models\MFAModel;
+use Exception;
+use Models\MFAModel;
 
     interface IMFARepository
     {
@@ -35,6 +36,11 @@
          */
         public function saveOtp(int $userId, int $otp, string $expiresAt) : bool
         {
+            if(empty($userId) || empty($otp) || empty($expiresAt))
+            {
+                throw new Exception("All fields are required");
+            }
+
             $query = "INSERT INTO {$this->table} SET userId = ?, otp = ?, expiresAt = ?";
 
             return $this->m_db->insert(

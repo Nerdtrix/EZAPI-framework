@@ -20,14 +20,6 @@
                 ];
             }
 
-            if(is_array($errorMessage))
-            {
-                if(!array_key_exists(0, $errorMessage))
-                {
-                    $errorMessage = [$errorMessage];
-                }
-            }
-
             $response = [
                 Constant::STATUS => Constant::ERROR,
                 Constant::CODE => $httpCode,

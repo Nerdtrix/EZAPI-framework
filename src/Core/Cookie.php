@@ -3,14 +3,16 @@
 
     interface ICookie
     {
-        function set(
+        public function set(
             string $name,
             string $value,
             string $cookieExpiration, 
             string $path = "/", 
             string $domain = "", 
-            bool $secure = false, 
-            bool $httpOnly = true ) : bool;
+            bool $secure = false, //set to true for production
+            bool $httpOnly = true,
+            string $sameSite = "Strict" //set to none in production
+            ) : bool;
 
 
         function get(string $name) : ?string;
@@ -38,7 +40,8 @@
             string $path = "/", 
             string $domain = "", 
             bool $secure = false, //set to true for production
-            bool $httpOnly = true ) : bool
+            bool $httpOnly = true,
+            string $sameSite = "Strict") : bool
         {
             if(!empty($name) && !empty($value)) 
             {
@@ -49,7 +52,7 @@
                     'expires' => strtotime($cookieExpiration),
                     'secure' => $secure,
                     'httponly' => $httpOnly,
-                    'samesite' => 'None' //None || Lax  || Strict
+                    'samesite' => $sameSite //None || Lax  || Strict
                 ];
 
 

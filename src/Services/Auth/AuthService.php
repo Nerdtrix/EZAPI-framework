@@ -72,6 +72,7 @@ use Models\{AuthModel, UserModel};
       string $password, 
       bool $rememberMe) : object
     {
+
       
       #Find by email or username
       $this->m_authModel = $this->m_authRepository->getUserByUsernameOrEmail($usernameOrEmail);
@@ -79,7 +80,10 @@ use Models\{AuthModel, UserModel};
       #User not found
       if(empty($this->m_authModel->id))
       {
-        throw new ApiError(ErrorMessage::INVALID_INPUT);
+        throw new ApiError(["fields" => [
+          "usernameOrEmail" => ErrorMessage::INVALID_INPUT,
+          "password" => ErrorMessage::INVALID_INPUT
+        ]]);
       }
 
       if(!is_null($this->m_authModel->deletedAt))
@@ -102,11 +106,24 @@ use Models\{AuthModel, UserModel};
         throw new ApiError(ErrorMessage::ACCOUNT_BLOCKED);
       }
 
+      
+
       #validate password
       $this->m_passwordService->validatePassword($password, $this->m_authModel);
 
       if($this->m_authModel->isTwoFactorAuth)
       {
+
+        //remember device
+
+        
+
+
+
+
+
+
+
         #Send a new OTP to the email address
         if($this->m_MFAService->createOtpMailSessionToken(
           userInfo: $this->m_authModel, 

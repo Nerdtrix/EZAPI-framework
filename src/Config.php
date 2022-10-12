@@ -15,7 +15,7 @@
 
             #Header configurations
             define("ALLOW_ANY_API_ORIGIN", true);
-            define("ALLOWED_ORIGINS", []); #This is only required if the ALLOW_ANY_API_ORIGIN is false.
+            define("ALLOWED_ORIGINS", [""]); #This is only required if the ALLOW_ANY_API_ORIGIN is false.
 
             
             #Define timezone

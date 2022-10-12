@@ -14,6 +14,6 @@
         public string $username;
         public string $phoneNumber;
         public string $locale;
-        public string $deletedAt;
+        public ?string $deletedAt;
     }
 ?>

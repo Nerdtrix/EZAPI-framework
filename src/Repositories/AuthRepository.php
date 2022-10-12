@@ -101,7 +101,7 @@ use Exception;
         {
             $getBy = filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL) ? "email" : "username";
 
-            $query =  "SELECT user.id, user.roleId, user.statusId, user.username, user.fName, user.lName, user.password, user.email, user.locale, user.isTwoFactorAuth, role.role, status.status
+            $query =  "SELECT user.*, role.role, status.status
                 FROM {$this->userTable} user, {$this->roleTable} role, {$this->statusTable} status
                 WHERE user.{$getBy} = ? AND user.statusId = status.id AND user.roleId = role.id
                 ORDER BY user.{$getBy} ASC 

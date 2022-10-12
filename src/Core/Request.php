@@ -18,6 +18,7 @@
 
          #Allowed HTTP methods
          private $_allowedMethods = [
+            "OPTIONS", //DO NOT REMOVE THIS VALUE
             "POST",
             "GET",
             "PUT",
@@ -36,6 +37,12 @@
             "application/json; charset=UTF-8",
             "application/x-www-form-urlencoded"
         ];
+
+        public function __construct()
+        {
+            #Inject headers on first call.
+            $this->headers();
+        }
 
 
         /**
@@ -61,6 +68,7 @@
             {
                 throw new ApiError(Dictionary::httpResponseCode[400]);
             }
+
 
             #Validate request method
             if(isset($_SERVER["REQUEST_METHOD"]) && !in_array($_SERVER["REQUEST_METHOD"], $this->_allowedMethods))
@@ -90,8 +98,8 @@
             #Build header array
             $headerValues = [
                 "Access-Control-Allow-Origin" => $_SERVER["HTTP_ORIGIN"],
-                "Access-Control-Allow-Credentials" => true,
-                "ccess-Control-Allow-Methods" => implode(",", $this->_allowedMethods),
+                "Access-Control-Allow-Credentials" => "true", //The boolean value must be encapsulated within a string.
+                "Access-Control-Allow-Methods" => implode(",", $this->_allowedMethods),
                 "Access-Control-Allow-Headers" => implode(",", $this->_allowedHeaders),
                 "Content-Type" => $_SERVER["CONTENT_TYPE"],
                 "X-Powered-By" => EZENV["APP_NAME"],
@@ -112,6 +120,12 @@
                 {
                     header(sprintf("%s: %s", $key, $value));
                 }
+            } 
+
+            #OPTIONS request wants only the policy, we can stop here
+            if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "OPTIONS") 
+            {
+                exit; 
             }
         }
 
@@ -140,8 +154,7 @@
 
         public function data() : mixed
         {
-            #Assign headers
-            $this->headers();
+           
 
             switch ($_SERVER["REQUEST_METHOD"])
             {
@@ -153,7 +166,6 @@
 
                 default:
                     return null;
-
             }
         }
 
@@ -177,22 +189,6 @@
             http_response_code($code);
 
             #convert to standard format
-
-            if(is_array($response))
-            {
-                if(!array_key_exists(0, $response))
-                {
-                    $response = [$response];
-                }
-            }
-            else
-            {
-                $response = [
-                    Constant::MESSAGE => $response
-                ];
-            }
-
-            
 
             if($code >= 400)
             {

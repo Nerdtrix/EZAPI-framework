@@ -3,7 +3,7 @@
     use Exception;
     use Core\DI;
     use Core\Exceptions\ApiError;
-    use Services\{ISessionService};
+    use Services\Auth\{ISessionService};
     use Repositories\IUserRepository;
     
 

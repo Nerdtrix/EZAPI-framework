@@ -13,7 +13,6 @@
          */
         public function request() : void
         {
-            
 
             #Load app config
             (new Config)->load();
@@ -21,12 +20,14 @@
             #Load EZENV config
             (new EZENV)->load(PRODUCTION);
 
-
             #Get the path info from the browser
             $pathInfo = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : $_SERVER['ORIG_PATH_INFO'];
 
             #Convert path into array and remove the last forward slash
             $request = preg_split("#/#", ltrim($pathInfo, "/"));
+
+            #Request data from GET, POST etc. This also assigns the necessary browser headers. 
+            $requestData = (new Request)->data();
 
              /**
              * After a request is made we will get the index of the array if it is not empty
@@ -56,7 +57,6 @@
                 #Remove everything after the question marks since they are parameters.
                 $method = strtok($method, "?");
             }
-            
 
             /*
             * If the class is not found or if the method does not exist in that class
@@ -73,12 +73,11 @@
              */
             $routeInstance = (new DI)->inject($route, $method);
 
-            #receive the payloads and pass them to the target method
-            $requestPayload = (new Request)->data();
-
-            $requestMethod = $_SERVER["REQUEST_METHOD"];
-
-            $routeInstance->$method($requestPayload, $requestMethod);
+            #Execute method and inject its assigned data.
+            $routeInstance->$method(
+                $requestData, 
+                $_SERVER["REQUEST_METHOD"]
+            );
         }
     }
 ?>
