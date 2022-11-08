@@ -31,19 +31,13 @@
             "Content-Type"
         ];
 
-        #Allowed HTTP content types
-        private $_allowedContentType = [
-            "application/json",
-            "application/json; charset=UTF-8",
-            "application/x-www-form-urlencoded"
-        ];
-
         public function __construct()
         {
             #Inject headers on first call.
             $this->headers();
         }
 
+        private $_defaultContentType = "application/json";
 
         /**
          * @method headers
@@ -83,16 +77,11 @@
                 throw new ApiError(Dictionary::httpResponseCode[415], 415);
             }
 
+            #Make sure content type is present while in production mode.
             #Overwrite Content type in development mode to JSON by default.
             if (!isset($_SERVER["CONTENT_TYPE"]) && !PRODUCTION)
             {
-                $_SERVER["CONTENT_TYPE"] =  $this->_allowedContentType[0];
-            }
-
-            #Validate content type
-            if(isset($_SERVER["CONTENT_TYPE"]) && !in_array($_SERVER["CONTENT_TYPE"], $this->_allowedContentType))
-            {
-                throw new ApiError(Dictionary::httpResponseCode[415], 415);
+                $_SERVER["CONTENT_TYPE"] =  $this->_defaultContentType;
             }
 
             #Build header array
@@ -146,6 +135,8 @@
             {
                 return $results;
             }
+
+            $file = $_FILES;
             
             #Anything other than json
             return $input;     

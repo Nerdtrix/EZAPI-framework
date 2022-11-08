@@ -3,7 +3,7 @@
     use Core\Database\Mysql\IMysql;
     use Models\{AuthModel, UserModel, StatusModel};
     use Core\Exceptions\DBError;
-use Exception;
+    use Exception;
 
     interface IAuthRepository
     {

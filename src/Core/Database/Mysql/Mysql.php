@@ -4,6 +4,7 @@
     use \PDOException;
     use \Exception;
     use Core\Exceptions\Error;
+use stdClass;
 
     interface IMysql
     {
@@ -18,6 +19,8 @@
         function update(string $query, array $bind) : bool;
 
         function delete(string $query, array $bind) : bool;
+
+        public function assign(string $model, object $values) : object;
 
         const DATE_FORMAT = "Y-m-d";
 
@@ -49,17 +52,16 @@
         {
             #validate data
             if(empty($query)) throw new Exception("A query is required");
-            if(empty($bind)) throw new Exception("you must bind your data");
-            if(!class_exists($model)) throw new Exception("the model class is invalid or does not exists");
-
-            
 
             #prepare the query
             $stmt = $this->m_db->prepare($query);
 
-            for ($i = 1; $i <= count($bind); $i++)
+            if(!empty($bind))
             {
-                $stmt->bindValue($i, $bind[$i - 1]);
+                for ($i = 1; $i <= count($bind); $i++)
+                {
+                    $stmt->bindValue($i, $bind[$i - 1]);
+                }
             }
 
             $stmt->setFetchMode($fetchMode); 
@@ -76,7 +78,7 @@
 
                 if(is_null($model))
                 {
-                    return $results;
+                    return (object)$results;
                 }
 
                 #new Instance of a model
@@ -85,7 +87,7 @@
                 #return empty object on bool
                 if(is_bool($results))
                 {
-                    return $modelObject;
+                    return (object)$modelObject;
                 }
                 
 
@@ -107,7 +109,7 @@
 
                 if(is_null($model))
                 {
-                    return $results;
+                    return (object)$results;
                 }
 
                 $data = [];
@@ -213,6 +215,26 @@
 
 
         /**
+         * @param string table
+         * @return array
+         * Shows all of the columns in a table
+         */
+        public function tableColumns(string $table) : array
+        {
+            $stmt = $this->m_db->prepare("SHOW COLUMNS FROM {$table}");
+
+            $stmt->setFetchMode(PDO::FETCH_OBJ); 
+
+            if($stmt->execute())
+            {
+                return $stmt->fetchAll();
+            }
+
+            return  [];
+        }
+
+
+        /**
          * @return PDO
          */
         public function db() : PDO
@@ -228,9 +250,64 @@
         {
             return $this->m_db->lastInsertId();
         }
-        
 
- 
+        /**
+         * Commit the changes
+         */
+        public function commit() : bool
+        {
+            return $this->m_db->commit();
+        }
+
+        /**
+         * Checks if a transaction is currently active within the driver. This method only works for database drivers that support transactions.
+         */
+        public function inTransaction() : bool
+        {
+            return $this->m_db->inTransaction();
+        }
+
+        /**
+         * Recognize mistake and roll back changes
+         */
+        public function rollBack() : bool
+        {
+            return $this->m_db->rollBack();
+        }
+
+        /**
+         * Begin a transaction, turning off autocommit
+         */
+        public function beginTransaction() : bool
+        {
+            return $this->m_db->beginTransaction();
+        }
+
+
+        /**
+         * @param class model
+         * @param array values
+         * @return stdClass
+         * This method auto assign values to a model to easily insert properties that are filled.
+         */
+        public function assign(string $model, object $values) : object
+        {
+            #new Instance of a model
+            $modelObject = new $model();
+
+            #Propagate results
+            foreach ($values as $key => $value) 
+            {
+                #only assign properties that are declared
+                if (property_exists($modelObject, $key)) 
+                {
+                    $modelObject->$key = $value;
+                }
+            }
+
+            return $modelObject;
+        }
+
 
         /**
          * Create a PDO database connection.
