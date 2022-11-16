@@ -1,11 +1,11 @@
 <?php
-    namespace Repositories;
+    namespace Repositories\User;
     use Core\Database\Mysql\IMysql;
-    use Models\UserModel;
+    use Models\User\UserModel;
 
     interface IUserRepository
     {
-        function getById(int $userId): \Models\UserModel;
+        function getById(int $userId): UserModel;
 
     }
 

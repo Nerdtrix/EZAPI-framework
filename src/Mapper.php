@@ -25,20 +25,22 @@
             #language
             \Core\Language\ITranslator::class => \Core\Language\Translator::class,
             
-            #Repositories
-            \Repositories\IMFARepository::class => \Repositories\MFARepository::class,
-            \Repositories\ISessionRepository::class => \Repositories\SessionRepository::class,
-            \Repositories\IUserRepository::class => \Repositories\UserRepository::class,
-            \Repositories\IAuthRepository::class => \Repositories\AuthRepository::class,
-            \Repositories\IDevicesRepository::class => \Repositories\DevicesRepository::class,
+           
+            #User
+            \Repositories\User\IUserRepository::class => \Repositories\User\UserRepository::class,
+            \Services\User\IUserService::class => \Services\User\UserService::class,
+            
 
-            #Services
-            \Services\IUserService::class => \Services\UserService::class,
+            #AUTH
             \Services\Auth\ISessionService::class => \Services\Auth\SessionService::class,
             \Services\Auth\IAuthService::class =>  \Services\Auth\AuthService::class,
             \Services\Auth\IMFAService::class => \Services\Auth\MFAService::class,
             \Services\Auth\IDevicesService::class => \Services\Auth\DevicesService::class,
-            \Services\Auth\IPasswordService::class => \Services\Auth\PasswordService::class
+            \Services\Auth\IPasswordService::class => \Services\Auth\PasswordService::class,
+            \Repositories\Auth\IMFARepository::class => \Repositories\Auth\MFARepository::class,
+            \Repositories\Auth\ISessionRepository::class => \Repositories\Auth\SessionRepository::class,
+            \Repositories\Auth\IAuthRepository::class => \Repositories\Auth\AuthRepository::class,
+            \Repositories\Auth\IDevicesRepository::class => \Repositories\Auth\DevicesRepository::class,
         ];
     }
 ?>

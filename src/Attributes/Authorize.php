@@ -4,7 +4,7 @@
     use Core\DI;
     use Core\Exceptions\ApiError;
     use Services\Auth\{ISessionService};
-    use Repositories\IUserRepository;
+    use Repositories\User\IUserRepository;
     
 
     #[\Attribute]

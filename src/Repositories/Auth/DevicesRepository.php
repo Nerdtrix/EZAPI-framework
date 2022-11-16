@@ -1,5 +1,5 @@
 <?php
-    namespace Repositories;
+    namespace Repositories\Auth;
     use Core\Database\Mysql\IMysql;
     use Models\DevicesModel;
 

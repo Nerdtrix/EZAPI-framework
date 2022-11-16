@@ -1,7 +1,8 @@
 <?php
-    namespace Repositories;
+    namespace Repositories\Auth;
     use Core\Database\Mysql\IMysql;
-    use Models\{AuthModel, UserModel, StatusModel};
+    use Models\User\UserModel;
+    use Models\{AuthModel, StatusModel};
     use Core\Exceptions\DBError;
     use Exception;
 

@@ -1,9 +1,11 @@
 <?php
   namespace Services\Auth;
   use Core\Exceptions\ApiError;
-use Core\EZENV;
-use Models\{AuthModel, UserModel};
-  use Repositories\{IAuthRepository, IUserRepository};
+  use Core\EZENV;
+  use Models\User\UserModel;
+  use Models\Auth\AuthModel;
+  use Repositories\User\IUserRepository;
+  use Repositories\Auth\IAuthRepository;
 
 
   interface IAuthService

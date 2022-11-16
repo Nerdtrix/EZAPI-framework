@@ -1,23 +1,23 @@
 <?php
     namespace Core\Language;
-    
+    use Exception;
+    use Core\ICookie;
 
-use Exception;
-
-interface ITranslator
+    interface ITranslator
     {
         function translate(string $key) : string;
-
         function setLocale(string $locale): void;
-
         function getLocale() : string;
     }
 
     class Translator implements ITranslator
     {
+        private ICookie $m_cookie;
+        private string $m_cookieName = "Language_Locale";
+        private string $m_cookieExpirationTime = CURRENT_TIME + 31556926; //1 Year
         private array $m_dictionary;
 
-        private string $m_locale = EZENV["DEFAULT_LOCALE"];
+        private string $m_locale;
 
         public const LANGUAGES = [
             "en_US" => [
@@ -38,8 +38,20 @@ interface ITranslator
         ];
 
 
-        public function __construct()
+        public function __construct(ICookie $cookie)
         {
+            $this->m_cookie = $cookie;
+
+            #Set locale
+            if($this->m_cookie->exists($this->m_cookieName))
+            {
+                $this->m_locale = $this->m_cookie->get($this->m_cookieName);
+            }
+            else
+            {
+                $this->m_locale = EZENV["DEFAULT_LOCALE"];
+            }
+
             $this->loadDictionary($this->m_locale);
         }
         
@@ -52,7 +64,10 @@ interface ITranslator
         {
             if(array_key_exists($key, $this->m_dictionary))
             {
-                return $this->m_dictionary[$key];
+                if(TRANSLATE_RESPONSES)
+                {
+                    return $this->m_dictionary[$key];
+                }
             }
 
             #Invalid key
@@ -69,6 +84,9 @@ interface ITranslator
             {
                throw new Exception("invalid language locale");
             }
+
+            #Attempt to save the prefference but it is ignored on error
+            $this->m_cookie->set($this->m_cookieName, $locale, $m_cookieExpirationTime);
 
             $this->loadDictionary($locale);
         }
@@ -88,9 +106,6 @@ interface ITranslator
          */
         private function loadDictionary(string $locale) : void
         {
-
-            //check cookie
-
             $dictionary = sprintf(
                 "%s%sCore%sLanguage%s%s", 
                 SRC_DIR, 
@@ -116,4 +131,4 @@ interface ITranslator
             $this->m_locale = $locale;
         }
     }
-    ?>
+?>

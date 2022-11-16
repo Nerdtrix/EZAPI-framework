@@ -1,14 +1,14 @@
 <?php
-    namespace Repositories;
+    namespace Repositories\Auth;
     use Core\Database\Mysql\IMysql;
-use Exception;
-use Models\MFAModel;
+    use Exception;
+    use Models\MFAModel;
 
     interface IMFARepository
     {
         function saveOtp(int $userId, int $otp, string $expiresAt) : bool;
 
-        function getByOtp(int $otp): \Models\MFAModel;
+        function getByOtp(int $otp): MFAModel;
 
         function deleteByOtp(int $otp) : bool;
 

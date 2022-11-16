@@ -13,7 +13,6 @@
          */
         public function request() : void
         {
-
             #Load app config
             (new Config)->load();
 
@@ -23,40 +22,63 @@
             #Get the path info from the browser
             $pathInfo = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : $_SERVER['ORIG_PATH_INFO'];
 
+             #See if parameters are sent with a get request and remove them
+             if (strpos($pathInfo, "?")) 
+             {
+                 #Remove everything after the question marks since they are parameters.
+                 $pathInfo = strtok($pathInfo, "?");
+             }
+
             #Convert path into array and remove the last forward slash
             $request = preg_split("#/#", ltrim($pathInfo, "/"));
 
             #Request data from GET, POST etc. This also assigns the necessary browser headers. 
             $requestData = (new Request)->data();
-
-             /**
-             * After a request is made we will get the index of the array if it is not empty
-             * and try to find a class with this name. If the index is empty we will then use the 
-             * default route defined in the config file. 
-             * 
-             * please note that Route is a folder in src and the backslash cannot be changed for any reason
-             * this is case sensitive because we are autoloading the classes.
-             */
-            $route =  sprintf("%s\%s", 
-                DEFAULT_ROUTE_DIRECTORY,
-                empty($request[0]) && empty($request[1]) ?
-                ucfirst(DEFAULT_ROUTE) : ucfirst($request[0])
-            );
-
             
             /**
-             * If the 2nd object in the array $request is not empty we will use that as default method.
-             * If the 2nd object in the array is empty we will get the index object otherwise if both
-             * index and 2nd objects are empty we will by default use index.
+             * index is the default method called unless specified in the URL.
+             * 
+             * if the array has 2 or more items we will then get the last item as the method name.
+             * After getting the last item as the method name, we remove the last item from 
+             * the array since it is no longer needed.
              */    
-            $method = !empty($request[0]) && !empty($request[1]) ? $request[1] : 'index';
-
-            #See if parameters are sent with a get request
-            if (strpos($method, "?")) 
+            $method = "index";
+            
+            if(!empty($request[0]) && !empty($request[1]))
             {
-                #Remove everything after the question marks since they are parameters.
-                $method = strtok($method, "?");
+                $method = end($request);
+
+                #remove the last element since it is the method and we already got it in the previous step.
+                array_pop($request);
             }
+           
+
+            /**
+            * If no controller is specified in the URL we will use the default controller.
+            * If 2 or more items are present in the array then we will parse the nested controller classes.
+            * 
+            * default route defined in the config file. 
+            * please note that Backslash cannot be changed for any reason because this is a class mapping function and 
+            * it is case sensitive because of the autoloading classes.
+            */
+            $route = ucfirst(DEFAULT_ROUTE);
+
+            if(!empty($request[0]) && $request[0] != $route)
+            {
+                $nestedPath = null;
+
+                foreach($request as $requestName)
+                {
+                    $nestedPath .= sprintf("\%s", ucfirst($requestName));
+                }
+
+                $route = $nestedPath;
+
+                $route = ltrim($route, "#\#");//Remove the first backslash to prevent duplication
+            }
+
+            #build the class path
+            $route =  sprintf("%s\%s", DEFAULT_ROUTE_DIRECTORY, $route);
 
             /*
             * If the class is not found or if the method does not exist in that class
