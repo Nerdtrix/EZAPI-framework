@@ -1,7 +1,7 @@
 <?php
     namespace Core\Language;
     use Exception;
-    use Core\ICookie;
+    use Core\{ICookie, Cookie};
 
     interface ITranslator
     {
@@ -14,7 +14,7 @@
     {
         private ICookie $m_cookie;
         private string $m_cookieName = "Language_Locale";
-        private string $m_cookieExpirationTime = CURRENT_TIME + 31556926; //1 Year
+        private int $m_cookieExpirationTime = 31556926; //1 Year
         private array $m_dictionary;
 
         private string $m_locale;
@@ -38,9 +38,9 @@
         ];
 
 
-        public function __construct(ICookie $cookie)
+        public function __construct()
         {
-            $this->m_cookie = $cookie;
+            $this->m_cookie = new Cookie();
 
             #Set locale
             if($this->m_cookie->exists($this->m_cookieName))
@@ -86,7 +86,7 @@
             }
 
             #Attempt to save the prefference but it is ignored on error
-            $this->m_cookie->set($this->m_cookieName, $locale, $m_cookieExpirationTime);
+            $this->m_cookie->set($this->m_cookieName, $locale, CURRENT_TIME + $this->m_cookieExpirationTime);
 
             $this->loadDictionary($locale);
         }
