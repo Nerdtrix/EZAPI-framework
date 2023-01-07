@@ -1,10 +1,10 @@
 <?php
     namespace Services\Auth;
+    use Exception;
     use Core\{ICookie, ICrypto};
     use Core\Exceptions\ApiError;
-    use Exception;
-    use Models\SessionModel;
-    use Repositories\ISessionRepository;
+    use Models\Auth\{SessionModel, AuthModel};
+    use Repositories\Auth\ISessionRepository;
     
 
     interface ISessionService
@@ -33,6 +33,7 @@
 
         #Models
         private SessionModel $m_sessionModel;
+        private AuthModel $m_authModel;
 
         #repositories
         private ISessionRepository $m_sessionRepository;
@@ -55,7 +56,7 @@
             $this->m_cookie = $cookie;
             $this->m_crypto = $crypto;
             $this->m_sessionRepository = $sessionRepository;
-            $this->m_deviceService = $deviceService;            
+            $this->m_deviceService = $deviceService;       
         }
 
 
@@ -274,7 +275,7 @@
                 );
 
                 #remove is new device status
-                $this->m_sessionService->changeIsNewStatus($this->m_sessionModel->id);
+                $this->changeIsNewStatus($this->m_sessionModel->id);
             }
 
             #Session validated

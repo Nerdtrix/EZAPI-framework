@@ -1,7 +1,7 @@
 <?php
   namespace Services\Auth;
-  use Core\Exceptions\ApiError;
   use Core\EZENV;
+  use Core\Exceptions\ApiError;
   use Models\User\UserModel;
   use Models\Auth\AuthModel;
   use Repositories\User\IUserRepository;
@@ -368,7 +368,7 @@
 
       if(!empty($errors)) throw new ApiError($errors);
 
-      $this->passwordService->weekPasswordValidation($input->password);
+      $this->m_passwordService->weekPasswordValidation($input->password);
 
       $password = $this->m_passwordService->securePassword($input->password);
 
@@ -396,7 +396,4 @@
       throw new ApiError("something went wrong");
       
     }
-
-
-  
   }
