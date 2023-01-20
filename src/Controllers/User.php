@@ -1,6 +1,6 @@
 <?php
     namespace Controllers;
-    use Services\{IUserService};
+    use Services\User\{IUserService};
     use Core\Exceptions\ApiError;
     use Core\{IRequest};
     use Attributes\Authorize;

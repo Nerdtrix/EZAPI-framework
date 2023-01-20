@@ -1,11 +1,10 @@
 <?php
     namespace Core\Database\Mysql;
+    use Core\Exceptions\ApiError;
     use \PDO;
     use \PDOException;
     use \Exception;
-    use Core\Exceptions\Error;
-use stdClass;
-
+    
     interface IMysql
     {
         function db() : \PDO;
@@ -18,9 +17,7 @@ use stdClass;
 
         function update(string $query, array $bind) : bool;
 
-        function delete(string $query, array $bind) : bool;
-
-        public function assign(string $model, object $values) : object;
+        function delete(string $query, array $bind) : bool;        
 
         const DATE_FORMAT = "Y-m-d";
 
@@ -68,7 +65,9 @@ use stdClass;
 
             if(!$stmt->execute())
             {
-                throw new Exception($stmt->error);
+                throw new Exception(serialize(
+                    $this->m_db->errorInfo()
+                ));
             }
 
             
@@ -87,7 +86,7 @@ use stdClass;
                 #return empty object on bool
                 if(is_bool($results))
                 {
-                    return (object)$modelObject;
+                    return (object)[$modelObject];
                 }
                 
 
@@ -135,6 +134,8 @@ use stdClass;
 
                 return (object)$data;
             }
+
+            
         }
 
 
@@ -155,7 +156,9 @@ use stdClass;
 
             if(!$stmt->execute())
             {
-                throw new Exception($stmt->error);
+                throw new Exception(serialize(
+                    $this->m_db->errorInfo()
+                ));
             }
 
             return $this->m_db->lastInsertId();
@@ -181,7 +184,9 @@ use stdClass;
 
             if(!$stmt->execute())
             {
-                throw new Exception($stmt->error);
+                throw new Exception(serialize(
+                    $this->m_db->errorInfo()
+                ));
             }
 
             return true;
@@ -207,7 +212,9 @@ use stdClass;
 
             if(!$stmt->execute())
             {
-                throw new Exception($stmt->error);
+                throw new Exception(serialize(
+                    $this->m_db->errorInfo()
+                ));
             }
 
             return true;
@@ -283,32 +290,7 @@ use stdClass;
             return $this->m_db->beginTransaction();
         }
 
-
-        /**
-         * @param class model
-         * @param array values
-         * @return stdClass
-         * This method auto assign values to a model to easily insert properties that are filled.
-         */
-        public function assign(string $model, object $values) : object
-        {
-            #new Instance of a model
-            $modelObject = new $model();
-
-            #Propagate results
-            foreach ($values as $key => $value) 
-            {
-                #only assign properties that are declared
-                if (property_exists($modelObject, $key)) 
-                {
-                    $modelObject->$key = $value;
-                }
-            }
-
-            return $modelObject;
-        }
-
-
+        
         /**
          * Create a PDO database connection.
          */
@@ -338,7 +320,7 @@ use stdClass;
             }
             catch(PDOException $ex)
             {
-                Error::handler($ex);
+                new ApiError($ex->getMessage(), 500);
             }
         }
     }

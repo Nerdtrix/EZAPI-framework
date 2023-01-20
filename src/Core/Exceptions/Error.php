@@ -9,21 +9,29 @@
     private const LINE = "line";
 
     
-    public static function handler($ex)
+    public static function handler(mixed $ex, int $errorCode = 400) : void
     {
        #Add return type
        header(sprintf("Content-Type: %s", Dictionary::contentType["json"]));  
             
        #Add HTTP response code
-       http_response_code(500);
+       http_response_code($errorCode);
+
+       if(is_string($ex))
+        {
+          if(@unserialize($ex) !== false)
+          {
+            $ex = unserialize($ex);
+          }
+        }
       
        #Add extra details while not in production mode
        if (!PRODUCTION) 
        {
           $response = [
-            Constant::STATUS => Constant::ERROR,
-            Constant::CODE => 500,
-            Constant::ERRORS => (object)[
+            Constant::SUCCESS => false,
+            Constant::CODE => $errorCode,
+            Constant::ERRORS => [
               Constant::MESSAGE => $ex->getMessage(),
               self::EXCEPTION => get_class($ex),
               self::LOCATION => $ex->getFile(),
@@ -33,16 +41,18 @@
        } 
        else
        {
+        $errorCode = $errorCode < 500 ? $ex->getMessage() : Dictionary::httpResponseCode[500];
+
           $response = [
-            Constant::STATUS => Constant::ERROR,
-            Constant::CODE => 500,
-            Constant::ERRORS => Dictionary::httpResponseCode[500]
+            Constant::SUCCESS => false,
+            Constant::CODE => $errorCode,
+            Constant::ERRORS => [
+              Constant::MESSAGE => $errorCode
+            ]
           ];
        } 
 
        //todo save log
-       
-       
 
        #Convert array to object
        $response = json_encode($response);          

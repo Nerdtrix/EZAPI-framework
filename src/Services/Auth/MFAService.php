@@ -1,10 +1,10 @@
 <?php
     namespace Services\Auth;
-
     use Core\Exceptions\ApiError;
     use Core\Ihelper;
-    use Models\{MFAModel, AuthModel};
-    use Repositories\{IMFARepository, IUserRepository};
+    use Models\Auth\{MFAModel, AuthModel};
+    use Repositories\Auth\IMFARepository;
+    use Repositories\User\IUserRepository;
     use Core\Mail\EZMAIL;
     use Core\Mail\Templates\Web2FA\Web2FAMail;
     use Core\Language\ITranslator;

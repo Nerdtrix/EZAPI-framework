@@ -2,8 +2,8 @@
     namespace Repositories\Auth;
     use Core\Database\Mysql\IMysql;
     use Models\User\UserModel;
-    use Models\{AuthModel, StatusModel};
-    use Core\Exceptions\DBError;
+    use Models\Auth\AuthModel;
+    use Models\User\StatusModel;
     use Exception;
 
     interface IAuthRepository
@@ -150,7 +150,7 @@
 
             if(empty($statusObj->id))
             {
-                throw new DBError("unknown status");
+                throw new Exception("unknown status");
             }
 
             return $this->m_db->update(

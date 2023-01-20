@@ -2,7 +2,7 @@
     namespace Repositories\Auth;
     use Core\Database\Mysql\IMysql;
     use Exception;
-    use Models\MFAModel;
+    use Models\Auth\MFAModel;
 
     interface IMFARepository
     {

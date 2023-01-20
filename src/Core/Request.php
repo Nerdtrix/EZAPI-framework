@@ -167,7 +167,7 @@
          * @param mixed response
          * @throws Exceptions
          */
-        public function response(mixed $response = "success", int $code = 200) : void
+        public function response(mixed $response = ["message" => "success"], int $code = 200) : void
         {
             #Validate response code
             if(!array_key_exists($code, Dictionary::httpResponseCode)) 

@@ -4,8 +4,8 @@
     use Core\{IHelper, ICookie, ICrypto};
     use Core\Mail\EZMAIL;
     use Exception;
-    use Models\DevicesModel;
-    use Repositories\{IDevicesRepository};
+    use Models\Auth\DevicesModel;
+    use Repositories\Auth\IDevicesRepository;
     use Core\Mail\Templates\NewDevice\NewDeviceMail;
     use Core\Language\ITranslator;
     

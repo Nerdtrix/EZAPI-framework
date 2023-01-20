@@ -3,9 +3,9 @@
     use Core\{ICookie, IHelper, ICrypto};
     use Core\Exceptions\ApiError;
     use Core\Mail\EZMAIL;
-    use Models\AuthModel;
+    use Models\Auth\AuthModel;
     use Core\Language\ITranslator;
-    use Repositories\IAuthRepository;
+    use Repositories\Auth\IAuthRepository;
     use Core\Mail\Templates\LoginAttempt\LoginAttempt;
     use Core\Mail\Templates\AccountLocked\AccountLocked;
     use Core\Mail\Templates\PasswordReset\PasswordReset;

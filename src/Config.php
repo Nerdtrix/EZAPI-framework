@@ -8,6 +8,7 @@
         {
             define("SLASH", DIRECTORY_SEPARATOR);
             define("ROOT_DIR", dirname(__DIR__, 1));
+            define("PUBLIC_DIR", ROOT_DIR . SLASH . "public");
             define("SRC_DIR", dirname(__FILE__));
 
             define("DEFAULT_ROUTE_DIRECTORY", "Controllers");

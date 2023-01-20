@@ -1,8 +1,7 @@
 <?php
     namespace Repositories\Auth;
     use Core\Database\Mysql\IMysql;
-    use Models\SessionModel;
-    use stdClass;
+    use Models\Auth\SessionModel;
 
     interface ISessionRepository
     {
@@ -10,9 +9,9 @@
 
         function listByUserId(int $userId) : object;
 
-        function getBySessionToken(string $token): \Models\SessionModel;
+        function getBySessionToken(string $token): SessionModel;
 
-        function getByUserId(int $userId, int $deviceId): \Models\SessionModel;
+        function getByUserId(int $userId, int $deviceId): SessionModel;
 
         function deleteById(int $sessionId): bool;
 

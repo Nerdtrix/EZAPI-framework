@@ -58,18 +58,18 @@
     }
     catch(TypeError $ex)
     {
-        ErrorHandler::handler($ex);
+        ErrorHandler::handler($ex, 500);
     }
     catch(Throwable $ex)
     {
-        ErrorHandler::handler($ex);
+        ErrorHandler::handler($ex, 500);
     }
     catch(ErrorException $ex)
     {
-        ErrorHandler::handler($ex);
+        ErrorHandler::handler($ex, 500);
     }
     catch(Error $ex)
     {
-        ErrorHandler::handler($ex);
+        ErrorHandler::handler($ex, 500);
     }
 ?>

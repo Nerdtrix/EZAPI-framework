@@ -1,14 +1,14 @@
 <?php
     namespace Repositories\Auth;
     use Core\Database\Mysql\IMysql;
-    use Models\DevicesModel;
+    use Models\Auth\DevicesModel;
 
 
     interface IDevicesRepository
     {
         function getDevicesByUserId(int $userId, int $limit = 30, int $offset = 0, string $orderBy = "id DESC") : \stdClass;
 
-        function getDeviceByCookieIdentifier(string $cookieIdentifier) : \Models\DevicesModel;
+        function getDeviceByCookieIdentifier(string $cookieIdentifier) : DevicesModel;
 
         function addNewDevice(int $userId, string $ipAddress, string $deviceName, string $cookieIdentifier, string $expiresAt) : int;
     }
