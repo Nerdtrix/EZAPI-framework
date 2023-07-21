@@ -1,10 +1,8 @@
 <?php
     namespace Services\Auth;
-    use \stdClass;
     use Core\{IHelper, ICookie, ICrypto};
     use Core\Mail\EZMAIL;
     use Exception;
-    use Models\Auth\DevicesModel;
     use Repositories\Auth\IDevicesRepository;
     use Core\Mail\Templates\NewDevice\NewDeviceMail;
     use Core\Language\ITranslator;
@@ -12,12 +10,9 @@
     
     interface IDevicesService
     {
-        function listDevicesByUserId(string $userId) : \stdClass;
         function addNewDevice(int $userId) : int;
-        function sendNewDeviceDetectedEmail(string $name, string $email, string $locale) : void;
-
+        function sendNewDeviceDetectedEmail(string $name, string $email) : void;
         function getDeviceId() : int;
-
     }
     
   class DevicesService implements IDevicesService
@@ -35,8 +30,6 @@
     #constant
     private const COOKIE_NAME = "device_token";
 
-    #Model
-    private DevicesModel $m_devicesModel;
     
   
     #Constructor
@@ -58,28 +51,15 @@
     
 
 
-    /**
-     * 
-     */
-    public function listDevicesByUserId(string $userId) : stdClass
-    {
-      #find devices attached to the user
-      return $this->m_devicesRepository->getDevicesByUserId(userId: $userId);
-    }
-
-
-
-
     public function getDeviceId() : int
     {
-        if(!$this->m_cookie->exists(self::COOKIE_NAME))
-        {
-            return 0;
-        }
+        $deviceToken = $this->m_cookie->get(self::COOKIE_NAME);
 
-        $this->m_devicesModel = $this->m_devicesRepository->getDeviceByCookieIdentifier(cookieIdentifier: $this->m_cookie->get(self::COOKIE_NAME));
+        if(is_null($deviceToken)) return 0;
 
-        if(!empty($this->m_devicesModel->id))
+        $devicesModel = $this->m_devicesRepository->getDeviceByCookieIdentifier($deviceToken);
+
+        if(!empty($devicesModel->id))
         {
             #Get browser info
             $browserInfo = $this->m_helper->getBrowserInfo();
@@ -88,13 +68,35 @@
             $publicIp = $this->m_helper->publicIP();
 
             #If everything match this is a valid device.
-            if($this->m_devicesModel->ip === $publicIp && $this->m_devicesModel->name == $browserInfo->name)
+            if($devicesModel->ip === $publicIp && $devicesModel->name == $browserInfo->name)
             {
-                return $this->m_devicesModel->id;
+                return $devicesModel->id;
             }
         }
 
+        $this->deleteDevice();
+
         return 0;
+    }
+
+    /**
+     * @return bool
+     * delete any device 
+     */
+    private function deleteDevice() : bool 
+    {
+        $deviceToken = $this->m_cookie->get(self::COOKIE_NAME);
+
+        if(!is_null($deviceToken))
+        {
+            $this->m_devicesRepository->deleteDeviceByToken($deviceToken);
+
+            $this->m_cookie->delete(self::COOKIE_NAME);
+
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -105,6 +107,20 @@
      */
     public function addNewDevice(int $userId) : int
     {
+        $deviceToken = $this->m_cookie->get(self::COOKIE_NAME);
+
+        if(!is_null($deviceToken))
+        {
+            $devicesModel = $this->m_devicesRepository->getDeviceByCookieIdentifier($deviceToken);
+
+            if(!empty($devicesModel->id) && $devicesModel->userId == $userId)
+            {
+                $this->m_devicesRepository->deleteDeviceByToken($deviceToken);
+
+                $this->m_cookie->delete(self::COOKIE_NAME);
+            }
+        }
+
         #Generate a random token
         $randomHash = $this->m_crypto->randomToken();
 
@@ -118,7 +134,7 @@
         if(!$this->m_cookie->set(
             name: self::COOKIE_NAME, 
             value: $randomHash, 
-            cookieExpiration: $sessionEnd))
+            cookieExpiration: strtotime($sessionEnd)))
         {
             throw new Exception("Unable to save device");
         }
@@ -140,9 +156,9 @@
      * @param string locale
      * This method sends a new email to the user notifying that a new device has been added to his account. 
      */
-    public function sendNewDeviceDetectedEmail(string $name, string $email, string $locale) : void
+    public function sendNewDeviceDetectedEmail(string $username, string $email) : void
     {
-        $this->m_email->to = [$name => $email];
+        $this->m_email->to = [$username => $email];
 
         $this->m_email->subject = $this->m_lang->translate("login_from_new_device");
 
@@ -151,7 +167,7 @@
         $brower = $this->m_helper->getBrowserInfo();
 
         #Fill template variables
-        NewDeviceMail::$fName = $name;
+        NewDeviceMail::$fName = $username;
         NewDeviceMail::$date = date("m/d/Y H:i:s", strtotime(TIMESTAMP));
         NewDeviceMail::$browser = $brower->name;
         NewDeviceMail::$platform = $brower->platform;

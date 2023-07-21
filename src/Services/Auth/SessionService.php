@@ -1,6 +1,5 @@
 <?php
     namespace Services\Auth;
-    use Exception;
     use Core\{ICookie, ICrypto};
     use Core\Exceptions\ApiError;
     use Models\Auth\{SessionModel, AuthModel};
@@ -23,7 +22,6 @@
 
         function changeIsNewStatus(int $sessionId) : bool;
 
-        function validateOtpSession(int $userId) : bool;
     }
     class SessionService implements ISessionService
     {
@@ -42,8 +40,8 @@
         private IDevicesService $m_deviceService;
 
         #constant
-        private const USER_SESSION_NAME = "EZAPI_DNPMYRJZJENXA0BQGA5Q";//Random string
-        private const USER_SESSION_EXPIRY = 20; #20 minutes
+        private const USER_SESSION_NAME = EZENV["SESSION_COOKIE_NAME"];
+        private const USER_SESSION_EXPIRY = 30; #30 minutes
         
     
         #Constructor
@@ -83,7 +81,7 @@
             $activeSessions = 1;
             foreach($sessions as $session)
             {
-                if(is_object($session))
+                if(!empty($session->deviceId)  && is_object($session))
                 {
                     if($sessionEnd  >= strtotime($session->expiresAt) && 
                     $session->deviceId > 0 &&
@@ -98,7 +96,7 @@
             #do not go over the maximun devices allowed
             if($activeSessions > (int)EZENV["MAX_DEVICES_ALLOWED"])
             {
-                throw new ApiError("Maximun_devices_logged");
+                throw new ApiError("maximum_devices_logged");
             }
             
             #save device
@@ -120,7 +118,7 @@
                if($this->m_cookie->set(
                    name: self::USER_SESSION_NAME,
                    value: $sessionToken,
-                   cookieExpiration: $rememberMe ? $sessionEnd : 0))
+                   cookieExpiration: $rememberMe == true ? $sessionEnd : 0))
                 {
                     return $sessionId;
                 }
@@ -131,58 +129,84 @@
 
       
 
-      public function isValid() : bool
-      {
-        #get current session hash
-        $sessionToken = $this->m_cookie->get(self::USER_SESSION_NAME);
-
-        if(is_null($sessionToken))
+    
+        /**
+         * Verify if there is an active session.
+         */
+        public function isValid() : bool
         {
+            #get current session hash
+            $sessionToken = $this->m_cookie->get(self::USER_SESSION_NAME);
+
+            if(is_null($sessionToken)) return false;
+
+            $this->m_sessionModel = $this->m_sessionRepository->getBySessionToken($sessionToken);
+
+            if(empty($this->m_sessionModel->id)) return false;
+
+            if(!$this->m_sessionModel->isValidated || $this->m_sessionModel->deviceId == 0)
+            {
+                $this->delete();
+
+                return false;
+            }
+
+            #Expiration time
+            $sessionEnd = CURRENT_TIME + (self::USER_SESSION_EXPIRY * 60);
+
+            #Validate expiration time             
+            if($sessionEnd  >= strtotime($this->m_sessionModel->expiresAt))
+            {
+                return true;
+            }
+                
+            $this->delete();
+
             return false;
         }
 
-        $this->m_sessionModel = $this->m_sessionRepository->getBySessionToken(token: $sessionToken);
 
-        if(empty($this->m_sessionModel->id) || !$this->m_sessionModel->isValidated || $this->m_sessionModel->deviceId == 0)
+        /**
+         * @return bool
+         * Distroy current user session.
+         */
+        public function delete() : bool
         {
+            $tokenToDistroy = $this->m_cookie->get(self::USER_SESSION_NAME);
+                
+            if(is_null($tokenToDistroy)) return false;
+
+            if($this->m_cookie->delete(self::USER_SESSION_NAME))
+            {
+                if($this->m_sessionRepository->deleteByToken($tokenToDistroy))
+                {
+                    return true;
+                }
+            }
+
             return false;
         }
 
-        #Expiration time
-        $sessionEnd = CURRENT_TIME + (self::USER_SESSION_EXPIRY * 60);
 
-        #Validate expiration time             
-        if($sessionEnd  >= strtotime($this->m_sessionModel->expiresAt))
+        /**
+         * @method getter
+         * @return int
+         * get current logged userId
+         */
+        public function userId() : int
         {
-            return true;
+            #get current session hash
+            $sessionToken = $this->m_cookie->get(self::USER_SESSION_NAME);
+
+            if(is_null($sessionToken)) throw new ApiError("auth_required");
+
+            #Search in DB by session token
+            $this->m_sessionModel = $this->m_sessionRepository->getBySessionToken($sessionToken);
+
+            if(empty($this->m_sessionModel->id))throw new ApiError("auth_required");
+
+            return $this->m_sessionModel->userId;
         }
-            
-        $this->delete();
-
-        return false;
-      }
-
-
-      public function userId() : int
-      {
-        #get current session hash
-        $sessionToken = $this->m_cookie->get(self::USER_SESSION_NAME);
-
-        if(is_null($sessionToken))
-        {
-            throw new ApiError("auth_required");
-        }
-
-        #Search in DB by session token
-        $this->m_sessionModel = $this->m_sessionRepository->getBySessionToken(token: $sessionToken);
-
-        if(empty($this->m_sessionModel->id))
-        {
-            throw new ApiError("auth_required");
-        }
-
-        return $this->m_sessionModel->userId;
-      }
 
 
 
@@ -190,19 +214,13 @@
         {
             $sessionToken = $this->m_cookie->get(self::USER_SESSION_NAME);
 
-            if(is_null($sessionToken))
-            {
-                return false;
-            }
+            if(is_null($sessionToken)) return false;
 
             #Search in DB by session name
-            $this->m_sessionModel = $this->m_sessionRepository->getBySessionToken(token: $sessionToken);
+            $this->m_sessionModel = $this->m_sessionRepository->getBySessionToken($sessionToken);
 
             #Verify if the session object is empty
-            if(empty($this->m_sessionModel->id))
-            {
-                return false;
-            }
+            if(empty($this->m_sessionModel->id)) return false;
 
             #Validate session time to see if auth is required
             if(strtotime($this->m_sessionModel->expiresAt) <  CURRENT_TIME)
@@ -234,90 +252,9 @@
             return true;
         }
 
-       
-
-
-        /**
-         * @param int userId
-         * @return bool
-         */
-        public function validateOtpSession(int $userId) : bool
-        {
-            #get current session hash
-            $sessionToken = $this->m_cookie->get(self::USER_SESSION_NAME);
-
-            if(is_null($sessionToken))
-            {
-                return false;
-            }
-
-            #Get by session name
-            $this->m_sessionModel = $this->m_sessionRepository->getBySessionToken(token: $sessionToken);
-
-            if(empty($this->m_sessionModel->id))
-            {
-                return false;
-            }
-
-            #Ensure that this is a first time session
-            if($this->m_sessionModel->isValidated)
-            {
-                return false;
-            }
-
-            if($this->m_sessionModel->isNewDevice)
-            {
-                #send new device email
-                $this->m_deviceService->sendNewDeviceDetectedEmail(
-                    name: $this->m_authModel->fName, 
-                    email: $this->m_authModel->email,
-                    locale: $this->m_authModel->locale
-                );
-
-                #remove is new device status
-                $this->changeIsNewStatus($this->m_sessionModel->id);
-            }
-
-            #Session validated
-            if($this->m_sessionRepository->updateValidation(
-                userId: $userId, 
-                sessionId: $this->m_sessionModel->id, 
-                isValidated : true))
-            {
-                return true;
-            }
-
-            
-            $this->delete();
-
-            return false;
-        }
-
     
 
-        /**
-         * @return bool
-         * Distroy current user session.
-         */
-        public function delete() : bool
-        {
-            if(!$this->m_cookie->exists(self::USER_SESSION_NAME))
-            {
-                return false;
-            }
-                
-            $tokenToDistroy = $this->m_cookie->get(self::USER_SESSION_NAME);
-
-            if($this->m_cookie->delete(self::USER_SESSION_NAME))
-            {
-                if($this->m_sessionRepository->deleteByToken(token: $tokenToDistroy))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        
 
 
         /**

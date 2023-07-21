@@ -37,14 +37,15 @@
 
 
         public string $htmlTemplate = "";
+        public string $body = "";
 
            
         public function __construct(ISMTPFactory $smtpFactory, IMailIdGenerator $mailIdGenerator, IMailBuilder $mailBuilder)
         {
             if(!empty(EZENV["SMTP_AUTH_TOKEN"]))
             {
-                $this->ezmail->authType = SMTP::AUTH_TYPE_2AUTH;
-                $this->ezmail->authToken = EZENV["SMTP_AUTH_TOKEN"];
+                $this->authType = SMTP::AUTH_TYPE_2AUTH;
+                $this->authToken = EZENV["SMTP_AUTH_TOKEN"];
             }
     
             $this->smtpFactory = $smtpFactory;

@@ -1,16 +1,15 @@
 <?php
     namespace Repositories\Auth;
     use Core\Database\Mysql\IMysql;
-    use Models\Auth\DevicesModel;
 
 
     interface IDevicesRepository
     {
-        function getDevicesByUserId(int $userId, int $limit = 30, int $offset = 0, string $orderBy = "id DESC") : \stdClass;
-
-        function getDeviceByCookieIdentifier(string $cookieIdentifier) : DevicesModel;
+        function getDeviceByCookieIdentifier(string $cookieIdentifier) : object;
 
         function addNewDevice(int $userId, string $ipAddress, string $deviceName, string $cookieIdentifier, string $expiresAt) : int;
+
+        function deleteDeviceByToken(string $tokenIdentifier) : bool;
     }
     
     class DevicesRepository implements IDevicesRepository
@@ -24,37 +23,20 @@
             $this->m_db = $mySql;
         }
 
-        /**
-         * @param int userId
-         * @param int limit (obtional 30 by default)
-         * @param int offset (obtional 0 by default)
-         * @param string orderBy (optional last record by id by default)
-         * @return stdClass object of models
-         */
-        public function getDevicesByUserId(int $userId, int $limit = 30, int $offset = 0, string $orderBy = "id DESC") : \stdClass
-        {
-            $query =  "SELECT * FROM {$this->devicesTable} WHERE userId = ? ORDER BY {$orderBy} LIMIT {$limit} OFFSET $offset";
-
-            return $this->m_db->select(
-                query: $query,
-                bind: [$userId],
-                model: DevicesModel::class
-            );
-        }
+    
 
 
         /**
          * @param string cookieIdentifier
          * @return DeviceModel object
          */
-        public function getDeviceByCookieIdentifier(string $cookieIdentifier) : DevicesModel
+        public function getDeviceByCookieIdentifier(string $cookieIdentifier) : object
         {
             $query =  "SELECT * FROM {$this->devicesTable} WHERE identifier = ? ORDER BY id DESC LIMIT 1";
 
             return $this->m_db->select(
                 query: $query,
-                bind: [$cookieIdentifier],
-                model: DevicesModel::class
+                bind: [$cookieIdentifier]
             );
         }
 
@@ -71,6 +53,15 @@
             return $this->m_db->insert(
                 query: "INSERT INTO {$this->devicesTable} SET userId = ?, ip = ?, name = ?, identifier = ?, expiresAt = ?",
                 bind: [$userId, $ipAddress, $deviceName, $cookieIdentifier, $expiresAt]
+            );
+        }
+
+
+        public function deleteDeviceByToken(string $tokenIdentifier) : bool
+        {
+            return $this->m_db->delete(
+                query: "DELETE FROM {$this->devicesTable} WHERE identifier = ?",
+                bind: [$tokenIdentifier]
             );
         }
 

@@ -1,14 +1,13 @@
 <?php
     namespace Core\Database\Mysql;
-    use Core\Exceptions\ApiError;
-    use \PDO;
     use \PDOException;
     use \Exception;
+    use \PDO;
+    
     
     interface IMysql
     {
         function db() : \PDO;
-
         function select(string $query, array $bind, string $model = null, string $fetchMode = \PDO::FETCH_OBJ) : object;
 
         function insert(string $query, array $bind) : int;
@@ -24,6 +23,47 @@
         const DATE_TIME_FORMAT = "Y-m-d H:i:s";
     }
 
+
+    final class Connection 
+    {
+        private static $connection;
+
+        public static function start() : PDO 
+        {
+            if(!is_null(self::$connection)) return self::$connection;
+
+            try 
+            { 
+                $config = [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_CASE => PDO::CASE_NATURAL,
+                    PDO::ATTR_ORACLE_NULLS => PDO::NULL_EMPTY_STRING,
+                    PDO::MYSQL_ATTR_INIT_COMMAND => sprintf(
+                        "SET NAMES %s;SET time_zone ='%s'", 
+                        "utf8", 
+                        CURRENT_TIMEZONE
+                    )#set timezone to match the default framework timezone
+                ];
+
+                self::$connection = new PDO(sprintf(
+                    "mysql:host=%s;dbname=%s", 
+                    EZENV['DB_HOST'], 
+                    EZENV['DB_NAME']),  
+                    EZENV['DB_USER'], 
+                    EZENV['DB_PASSWORD'],
+                    $config
+                );
+
+                return self::$connection;
+            }
+            catch(PDOException $ex)
+            {
+                throw new Exception($ex->getMessage());
+            }
+        }
+    }
+
+
     class Mysql implements IMysql
     {
         protected PDO $m_db;
@@ -34,7 +74,7 @@
 
         public function __construct() 
         {
-            $this->connect();
+            $this->m_db = Connection::start();
         }
 
         
@@ -288,40 +328,6 @@
         public function beginTransaction() : bool
         {
             return $this->m_db->beginTransaction();
-        }
-
-        
-        /**
-         * Create a PDO database connection.
-         */
-        private function connect() : void 
-        {
-            try 
-            { 
-                $config = [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_CASE => PDO::CASE_NATURAL,
-                    PDO::ATTR_ORACLE_NULLS => PDO::NULL_EMPTY_STRING,
-                    PDO::MYSQL_ATTR_INIT_COMMAND => sprintf(
-                        "SET NAMES %s;SET time_zone ='%s'", 
-                        "utf8", 
-                        CURRENT_TIMEZONE
-                    )#set timezone to match the default framework timezone
-                ];
-
-                $this->m_db = new PDO(sprintf(
-                    "mysql:host=%s;dbname=%s", 
-                    EZENV['DB_HOST'], 
-                    EZENV['DB_NAME']),  
-                    EZENV['DB_USER'], 
-                    EZENV['DB_PASSWORD'],
-                    $config
-                );
-            }
-            catch(PDOException $ex)
-            {
-                new ApiError($ex->getMessage(), 500);
-            }
         }
     }
 ?>

@@ -12,7 +12,7 @@
             define("SRC_DIR", dirname(__FILE__));
 
             define("DEFAULT_ROUTE_DIRECTORY", "Controllers");
-            define("DEFAULT_ROUTE", "User");
+            define("DEFAULT_ROUTE", "Auth");
 
             #Header configurations
             define("ALLOW_ANY_API_ORIGIN", true);
